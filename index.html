@@ -5,231 +5,147 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meet Chat</title>
 <style>
-*{box-sizing:border-box;font-family:Arial,sans-serif}
-body{margin:0;background:#0f1115;color:white}
-.top{padding:20px;text-align:center;background:#1a1d24}
-.top h1{margin:0;font-size:32px}
-.top p{color:#aaa;margin:5px 0}
-.card{background:#1a1d24;margin:15px;padding:18px;border-radius:16px}
-input,select{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:1px solid #333;background:#0f1115;color:white;font-size:15px}
-button{width:100%;padding:14px;border:none;border-radius:12px;background:#25D366;color:#000;font-weight:bold;font-size:16px;cursor:pointer;margin-top:8px}
-button.blue{background:#0084ff;color:white}
-button.gray{background:#333;color:white}
-.hidden{display:none}
-.user{display:flex;align-items:center;gap:12px;padding:12px;background:#22262f;border-radius:12px;margin:8px 0;cursor:pointer}
-.user img{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#444}
-.msg{max-width:80%;padding:10px 12px;border-radius:14px;margin:6px 0;font-size:15px}
-.me{background:#25D366;color:#000;margin-left:auto}
-.other{background:#2a2f3a}
-#chatBox{height:55vh;overflow-y:auto;padding:10px}
-.flex{display:flex;gap:8px}
-.flex input{flex:1}
-.flex button{width:80px}
-#toast{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#000;color:#fff;padding:10px 16px;border-radius:20px;z-index:999;display:none;border:1px solid #444}
+*{box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:0}
+body{background:#f0f2f5;color:#111}
+.hidden{display:none!important}
+#splash{position:fixed;inset:0;background:#0084ff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:white}
+#splash h1{font-size:48px;letter-spacing:2px}
+#splash p{opacity:.9;margin-top:8px}
+#splash .loader{width:40px;height:40px;border:4px solid rgba(255,255,255,.3);border-top:4px solid white;border-radius:50%;animation:spin 1s linear infinite;margin-top:25px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.topBar{background:white;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 5px rgba(0,0,0,.08);position:sticky;top:0;z-index:10}
+.topBar h1{color:#0084ff;font-size:24px}
+.topBar small{color:#666}
+.authWrap{max-width:420px;margin:0 auto;padding:24px 18px;background:white;min-height:100vh}
+.authWrap h2{text-align:center;font-size:26px;margin:10px 0 4px}
+.authWrap p{text-align:center;color:#777;font-size:14px;margin-bottom:20px}
+.authWrap label{font-size:13px;font-weight:600;color:#333;margin-top:12px;display:block}
+input,select{width:100%;padding:14px;margin:6px 0 10px;border-radius:12px;border:1px solid #ddd;background:#f8f9fa;font-size:15px;outline:none}
+input:focus{border-color:#0084ff;background:white}
+.btn{width:100%;padding:15px;border:none;border-radius:12px;background:#0084ff;color:white;font-weight:700;font-size:16px;cursor:pointer;margin-top:10px}
+.btn-gray{background:#eef2f5;color:#333}
+.link{text-align:center;margin-top:14px;color:#0084ff;font-weight:600;cursor:pointer;font-size:14px}
+.content{padding-bottom:90px;max-width:520px;margin:0 auto}
+.card{background:white;margin:12px;border-radius:16px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+/* STATUS ON TOP OF CHATS - AS YOU SAID */
+.statusRow{display:flex;gap:14px;overflow-x:auto;padding:14px;background:white;margin:12px;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.statusItem{text-align:center;min-width:62px;cursor:pointer;position:relative}
+.statusItem img{width:58px;height:58px;border-radius:50%;object-fit:cover;border:3px solid #0084ff;padding:2px;background:white}
+.statusItem.my img{border-color:#ccc}
+.statusItem span{font-size:11px;display:block;margin-top:4px;max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.statusItem .plus{position:absolute;bottom:18px;right:2px;background:#0084ff;color:white;width:20px;height:20px;border-radius:50%;font-size:16px;line-height:18px;border:2px solid white}
+.userRow{display:flex;gap:12px;align-items:center;padding:12px;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.userRow:last-child{border:none}
+.userRow img{width:52px;height:52px;border-radius:50%;object-fit:cover;background:#e0e0e0}
+.userRow .meta{flex:1;min-width:0}
+.userRow .meta b{font-size:16px}
+.userRow .meta p{color:#777;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{background:#ff3b30;color:white;font-size:11px;font-weight:700;padding:4px 8px;border-radius:20px;min-width:22px;text-align:center}
+.time{font-size:11px;color:#999}
+.msg{max-width:78%;padding:11px 14px;border-radius:18px;margin:6px 0;font-size:15px;line-height:1.4}
+.me{background:#0084ff;color:white;margin-left:auto;border-bottom-right-radius:6px}
+.other{background:white;box-shadow:0 1px 3px rgba(0,0,0,.08);border-bottom-left-radius:6px}
+#chatBox{height:calc(100vh - 190px);overflow-y:auto;padding:14px;background:#f0f2f5}
+.chatHeader{background:white;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 5px rgba(0,0,0,.08);position:sticky;top:0}
+.chatHeader img{width:40px;height:40px;border-radius:50%;object-fit:cover}
+.chatInput{position:fixed;bottom:0;left:0;right:0;background:white;padding:10px;display:flex;gap:8px;box-shadow:0 -1px 8px rgba(0,0,0,.08)}
+.chatInput input{margin:0;border-radius:25px}
+.chatInput button{width:52px;height:52px;border-radius:50%;background:#0084ff;color:white;border:none;font-size:20px;cursor:pointer;flex-shrink:0}
+.tabs{display:flex;background:white;border-top:1px solid #eee;position:fixed;bottom:0;left:0;right:0;z-index:20}
+.tab{flex:1;text-align:center;padding:12px 0;font-size:13px;color:#888;cursor:pointer}
+.tab.active{color:#0084ff;font-weight:700;border-top:3px solid #0084ff}
+.tab span{font-size:22px;display:block}
+.profilePic{width:90px;height:90px;border-radius:50%;object-fit:cover;display:block;margin:10px auto;background:#eee}
+#toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#111;color:white;padding:11px 18px;border-radius:25px;z-index:10000;display:none;font-size:14px}
+#statusViewer{position:fixed;inset:0;background:#000;z-index:10001;display:flex;flex-direction:column;justify-content:center;align-items:center;color:white;padding:20px;text-align:center}
+#statusViewer img{width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid #0084ff}
+#statusViewer p{font-size:22px;margin:16px 0;line-height:1.5}
 </style>
 </head>
 <body>
 <div id="toast"></div>
-<div class="top"><h1>MEET CHAT</h1><p>No OTP. Real Firebase. Works on all phones.</p><p id="status" style="color:#25D366;font-size:12px">Connecting...</p></div>
+<div id="splash"><h1>MEET CHAT</h1><p>Connect with everyone</p><div class="loader"></div></div>
 
 <!-- AUTH -->
-<div id="authPage">
-  <div class="card" id="createBox">
-    <h2>Create Account</h2>
-    <input id="c_phone" placeholder="Phone e.g 771234567">
-    <input id="c_user" placeholder="Username e.g inno">
-    <input id="c_pass" type="password" placeholder="Password min 6">
-    <select id="c_q"><option>What is your mother's first name?</option><option>What is your pet name?</option><option>What is your birth town?</option></select>
-    <input id="c_ans" placeholder="Security Answer e.g mama">
-    <label style="font-size:13px;color:#aaa">Profile Picture (optional)</label>
-    <input id="c_pic" type="file" accept="image/*">
-    <button onclick="createAccount()">CREATE ACCOUNT</button>
-    <button class="gray" onclick="showLogin()">Already have account? Login</button>
-  </div>
-  <div class="card hidden" id="loginBox">
-    <h2>Login</h2>
-    <input id="l_phone" placeholder="Phone">
-    <input id="l_pass" type="password" placeholder="Password">
-    <button onclick="login()">LOGIN</button>
-    <button class="gray" onclick="showCreate()">No account? Create</button>
-    <button class="gray" onclick="forgot()">Forgot Password? Reset with Security Answer</button>
-  </div>
-  <div class="card hidden" id="forgotBox">
-    <h2>Reset Password</h2>
-    <input id="f_phone" placeholder="Phone">
-    <select id="f_q"><option>What is your mother's first name?</option><option>What is your pet name?</option><option>What is your birth town?</option></select>
-    <input id="f_ans" placeholder="Security Answer">
-    <input id="f_new" type="password" placeholder="New Password">
-    <button onclick="resetPass()">RESET PASSWORD</button>
-    <button class="gray" onclick="showLogin()">Back to Login</button>
-  </div>
-</div>
+<div id="authPage" class="hidden"><div class="authWrap">
+<h1 style="text-align:center;color:#0084ff">MEET CHAT</h1>
+<div id="createBox"><h2>Create Account</h2><p>Join Meet Chat in seconds</p>
+<label>Phone Number</label><input id="c_phone" placeholder="e.g 771234567">
+<label>Username</label><input id="c_user" placeholder="e.g inno">
+<label>Password</label><input id="c_pass" type="password" placeholder="Min 6 characters">
+<label>Security Question</label><select id="c_q"><option>What is your mother's first name?</option><option>What is your pet name?</option><option>What is your birth town?</option></select>
+<label>Security Answer</label><input id="c_ans" placeholder="e.g mama">
+<label>Profile Picture</label><input id="c_pic" type="file" accept="image/*">
+<button class="btn" onclick="createAccount()">CREATE ACCOUNT</button><div class="link" onclick="showLogin()">Already have account? Sign In</div></div>
+<div id="loginBox" class="hidden"><h2>Welcome Back</h2><p>Sign in to continue</p><label>Phone</label><input id="l_phone" placeholder="Phone"><label>Password</label><input id="l_pass" type="password" placeholder="Password"><button class="btn" onclick="login()">SIGN IN</button><div class="link" onclick="forgot()">Forgot Password?</div><div class="link" onclick="showCreate()">No account? Create Account</div></div>
+<div id="forgotBox" class="hidden"><h2>Reset Password</h2><p>Use your security answer</p><label>Phone</label><input id="f_phone" placeholder="Phone"><label>Security Question</label><select id="f_q"><option>What is your mother's first name?</option><option>What is your pet name?</option><option>What is your birth town?</option></select><label>Answer</label><input id="f_ans" placeholder="Answer"><label>New Password</label><input id="f_new" type="password" placeholder="New Password"><button class="btn" onclick="resetPass()">RESET PASSWORD</button><div class="link" onclick="showLogin()">Back to Sign In</div></div>
+</div></div>
 
-<!-- CHATS -->
+<!-- MAIN -->
 <div id="mainPage" class="hidden">
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <b id="myName">Hi</b>
-      <button style="width:auto;padding:8px 14px" class="gray" onclick="logout()">Logout</button>
-    </div>
-    <input id="searchUser" placeholder="Search username..." oninput="loadUsers()">
-    <h3>All Users</h3>
-    <div id="userList"></div>
-  </div>
+<div class="topBar"><div><h1>Meet Chat</h1><small id="status">Connected ✅</small></div><b id="myName" style="font-size:14px"></b></div>
+<div class="content">
+<!-- CHATS TAB -->
+<div id="tabChats">
+<!-- STATUS ON TOP OF CHATS - YOUR FEATURE -->
+<div class="statusRow" id="statusRow"></div>
+<div class="card"><h3 style="margin-bottom:8px">Chats</h3><input id="searchUser" placeholder="🔍 Search..." oninput="loadUsers()"><div id="userList"></div></div>
+</div>
+<!-- ADD CHAT TAB -->
+<div id="tabAdd" class="hidden"><div class="card"><h3>Add New Chat</h3><p style="color:#777;font-size:14px;margin:6px 0">Tap any person to start chatting</p><div id="addUserList"></div></div></div>
+<!-- SETTINGS TAB -->
+<div id="tabSettings" class="hidden">
+<div class="card" style="text-align:center"><img id="myPic" class="profilePic" src="https://via.placeholder.com/90"><h3 id="profileName"></h3><p id="profilePhone" style="color:#777"></p></div>
+<div class="card"><h3>⚙️ Settings</h3><p style="margin:12px 0;color:#333">🔔 Notifications: <b>On</b></p><p style="margin:12px 0;color:#333">🎨 Theme: <b>White / Blue</b></p><p style="margin:12px 0;color:#333">ℹ️ Version: <b>Meet Chat 1.0</b></p><p style="margin:12px 0;color:#333">🔒 Account: <b id="settingsPhone"></b></p><button class="btn btn-gray" onclick="logout()">Logout</button></div>
+</div>
+</div>
+<div class="tabs">
+<div class="tab active" onclick="switchTab('chats',this)"><span>💬</span>Chats</div>
+<div class="tab" onclick="switchTab('add',this)"><span>➕</span>Add Chat</div>
+<div class="tab" onclick="switchTab('settings',this)"><span>⚙️</span>Settings</div>
+</div>
 </div>
 
 <!-- CHAT ROOM -->
 <div id="chatPage" class="hidden">
-  <div class="card">
-    <button class="gray" onclick="backToList()">← Back</button>
-    <h3 id="chatWith">Chat</h3>
-    <div id="chatBox"></div>
-    <div class="flex"><input id="msgInput" placeholder="Type message..."><button onclick="sendMsg()">Send</button></div>
-  </div>
+<div class="chatHeader"><button onclick="backToList()" style="border:none;background:none;font-size:22px;cursor:pointer">←</button><img id="chatAvatar" src="https://via.placeholder.com/40"><div><b id="chatWith">Chat</b><br><small style="color:#25D366">Online</small></div></div>
+<div id="chatBox"></div>
+<div class="chatInput"><input id="msgInput" placeholder="Type a message..."><button onclick="sendMsg()">➤</button></div>
 </div>
+
+<!-- STATUS VIEWER -->
+<div id="statusViewer" class="hidden"><img id="svImg" src=""><h3 id="svName"></h3><p id="svText"></p><small id="svTime" style="color:#aaa"></small><button class="btn" style="max-width:200px" onclick="closeStatus()">Close</button></div>
+
+<!-- ADD STATUS MODAL -->
+<div id="addStatusBox" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10002;display:flex;align-items:center;justify-content:center;padding:20px"><div style="background:white;border-radius:16px;padding:20px;width:100%;max-width:380px"><h3>Add Status</h3><input id="statusText" placeholder="What is on your mind?"><button class="btn" onclick="saveStatus()">POST STATUS</button><button class="btn btn-gray" onclick="document.getElementById('addStatusBox').classList.add('hidden')">Cancel</button></div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, orderBy, onSnapshot, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBleFoBV36jw2mGbmZgO7lrFtG4VswtPk8",
-  authDomain: "meetchat-cab0c.firebaseapp.com",
-  projectId: "meetchat-cab0c",
-  storageBucket: "meetchat-cab0c.firebasestorage.app",
-  messagingSenderId: "722069770375",
-  appId: "1:722069770375:web:e6d195f8476cb7b069e822"
-};
-
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = { apiKey: "AIzaSyBleFoBV36jw2mGbmZgO7lrFtG4VswtPk8", authDomain: "meetchat-cab0c.firebaseapp.com", projectId: "meetchat-cab0c", storageBucket: "meetchat-cab0c.firebasestorage.app", messagingSenderId: "722069770375", appId: "1:722069770375:web:e6d195f8476cb7b069e822" };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-document.getElementById('status').innerText = "Connected to Firebase: meetchat-cab0c ✅";
-
 let me = JSON.parse(localStorage.getItem('meetchat_me') || 'null');
-let currentChatUser = null;
-let unsub = null;
-
+let currentChatUser=null; let unsub=null;
 function toast(t){ const el=document.getElementById('toast'); el.innerText=t; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
-window.toast = toast;
-
-window.showLogin = ()=>{ document.getElementById('createBox').classList.add('hidden'); document.getElementById('loginBox').classList.remove('hidden'); document.getElementById('forgotBox').classList.add('hidden'); }
-window.showCreate = ()=>{ document.getElementById('createBox').classList.remove('hidden'); document.getElementById('loginBox').classList.add('hidden'); document.getElementById('forgotBox').classList.add('hidden'); }
-window.forgot = ()=>{ document.getElementById('createBox').classList.add('hidden'); document.getElementById('loginBox').classList.add('hidden'); document.getElementById('forgotBox').classList.remove('hidden'); }
-
-function fileToBase64(file){ return new Promise((res)=>{ if(!file) return res(""); const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); }); }
-
-window.createAccount = async ()=>{
-  const phone=document.getElementById('c_phone').value.trim();
-  const username=document.getElementById('c_user').value.trim().toLowerCase();
-  const pass=document.getElementById('c_pass').value;
-  const q=document.getElementById('c_q').value;
-  const ans=document.getElementById('c_ans').value.trim().toLowerCase();
-  const picFile=document.getElementById('c_pic').files[0];
-  if(!phone||!username||!pass||!ans) return toast("Fill all fields");
-  if(pass.length<6) return toast("Password min 6");
-  toast("Creating...");
-  try{
-    const ref=doc(db,"users",phone);
-    const snap=await getDoc(ref);
-    if(snap.exists()) return toast("Phone already used, Login");
-    const pic=await fileToBase64(picFile);
-    const user={phone,username,pass,q,ans,pic,created:Date.now()};
-    await setDoc(ref,user);
-    me=user; localStorage.setItem('meetchat_me',JSON.stringify(user));
-    toast("Account created! Welcome "+username);
-    openMain();
-  }catch(e){ toast("Error: "+e.message); }
-};
-
-window.login = async ()=>{
-  const phone=document.getElementById('l_phone').value.trim();
-  const pass=document.getElementById('l_pass').value;
-  if(!phone||!pass) return toast("Fill phone + password");
-  try{
-    const snap=await getDoc(doc(db,"users",phone));
-    if(!snap.exists()) return toast("No account for this phone");
-    const u=snap.data();
-    if(u.pass!==pass) return toast("Wrong password");
-    me=u; localStorage.setItem('meetchat_me',JSON.stringify(u));
-    toast("Welcome back "+u.username);
-    openMain();
-  }catch(e){ toast("Error: "+e.message); }
-};
-
-window.resetPass = async ()=>{
-  const phone=document.getElementById('f_phone').value.trim();
-  const q=document.getElementById('f_q').value;
-  const ans=document.getElementById('f_ans').value.trim().toLowerCase();
-  const np=document.getElementById('f_new').value;
-  if(!phone||!ans||!np) return toast("Fill all");
-  try{
-    const ref=doc(db,"users",phone);
-    const snap=await getDoc(ref);
-    if(!snap.exists()) return toast("No account");
-    const u=snap.data();
-    if(u.q!==q||u.ans!==ans) return toast("Wrong security answer");
-    u.pass=np; await setDoc(ref,u);
-    toast("Password reset! Login now");
-    showLogin();
-  }catch(e){ toast("Error: "+e.message); }
-};
-
-window.logout = ()=>{ localStorage.removeItem('meetchat_me'); me=null; location.reload(); };
-window.backToList = ()=>{ if(unsub) unsub(); document.getElementById('chatPage').classList.add('hidden'); document.getElementById('mainPage').classList.remove('hidden'); loadUsers(); };
-
-function openMain(){
-  document.getElementById('authPage').classList.add('hidden');
-  document.getElementById('mainPage').classList.remove('hidden');
-  document.getElementById('myName').innerText="Hi, "+me.username+" ("+me.phone+")";
-  loadUsers();
-}
-
-window.loadUsers = async ()=>{
-  const search=(document.getElementById('searchUser').value||"").toLowerCase();
-  try{
-    const snap=await getDocs(collection(db,"users"));
-    let html="";
-    snap.forEach(d=>{
-      const u=d.data();
-      if(u.phone===me.phone) return;
-      if(search && !u.username.includes(search)) return;
-      const img=u.pic||"https://via.placeholder.com/48";
-      html+=`<div class="user" onclick='openChat("${u.phone}","${u.username}")'><img src="${img}"><div><b>${u.username}</b><br><small>${u.phone}</small></div></div>`;
-    });
-    document.getElementById('userList').innerHTML=html||"<p>No other users yet. Create another account on other phone.</p>";
-  }catch(e){ document.getElementById('userList').innerHTML="Error: "+e.message; }
-};
-
-window.openChat = (phone,username)=>{
-  currentChatUser={phone,username};
-  document.getElementById('mainPage').classList.add('hidden');
-  document.getElementById('chatPage').classList.remove('hidden');
-  document.getElementById('chatWith').innerText="Chat with "+username;
-  const chatId=[me.phone,phone].sort().join("_");
-  const q=query(collection(db,"chats",chatId,"messages"),orderBy("time"));
-  if(unsub) unsub();
-  unsub=onSnapshot(q,(snap)=>{
-    let html="";
-    snap.forEach(d=>{
-      const m=d.data();
-      const cls=m.from===me.phone?"msg me":"msg other";
-      html+=`<div class="${cls}"><b>${m.fromName}:</b> ${m.text}</div>`;
-    });
-    const box=document.getElementById('chatBox');
-    box.innerHTML=html||"<p>Say hi!</p>";
-    box.scrollTop=box.scrollHeight;
-  });
-};
-
-window.sendMsg = async ()=>{
-  const txt=document.getElementById('msgInput').value.trim();
-  if(!txt||!currentChatUser) return;
-  const chatId=[me.phone,currentChatUser.phone].sort().join("_");
-  await addDoc(collection(db,"chats",chatId,"messages"),{from:me.phone,fromName:me.username,to:currentChatUser.phone,text:txt,time:Date.now()});
-  document.getElementById('msgInput').value="";
-};
-
-if(me) openMain();
-</script>
-</body>
-</html>
+window.showLogin=()=>{document.getElementById('createBox').classList.add('hidden');document.getElementById('loginBox').classList.remove('hidden');document.getElementById('forgotBox').classList.add('hidden');}
+window.showCreate=()=>{document.getElementById('createBox').classList.remove('hidden');document.getElementById('loginBox').classList.add('hidden');document.getElementById('forgotBox').classList.add('hidden');}
+window.forgot=()=>{document.getElementById('createBox').classList.add('hidden');document.getElementById('loginBox').classList.add('hidden');document.getElementById('forgotBox').classList.remove('hidden');}
+window.switchTab=(name,el)=>{ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); document.getElementById('tabChats').classList.toggle('hidden',name!=='chats'); document.getElementById('tabAdd').classList.toggle('hidden',name!=='add'); document.getElementById('tabSettings').classList.toggle('hidden',name!=='settings'); if(name==='add') loadAddUsers(); }
+function fileToBase64(file){return new Promise((res)=>{if(!file) return res(""); const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file);});}
+window.createAccount=async()=>{ const phone=document.getElementById('c_phone').value.trim(); const username=document.getElementById('c_user').value.trim().toLowerCase(); const pass=document.getElementById('c_pass').value; const q=document.getElementById('c_q').value; const ans=document.getElementById('c_ans').value.trim().toLowerCase(); const picFile=document.getElementById('c_pic').files[0]; if(!phone||!username||!pass||!ans) return toast("Fill all fields"); if(pass.length<6) return toast("Password min 6"); toast("Creating..."); try{ const ref=doc(db,"users",phone); const snap=await getDoc(ref); if(snap.exists()) return toast("Phone already used, Sign In"); const pic=await fileToBase64(picFile); const user={phone,username,pass,q,ans,pic,created:Date.now()}; await setDoc(ref,user); me=user; localStorage.setItem('meetchat_me',JSON.stringify(user)); toast("Welcome "+username); openMain(); }catch(e){toast("Error: "+e.message);} };
+window.login=async()=>{ const phone=document.getElementById('l_phone').value.trim(); const pass=document.getElementById('l_pass').value; if(!phone||!pass) return toast("Fill phone + password"); try{ const snap=await getDoc(doc(db,"users",phone)); if(!snap.exists()) return toast("No account"); const u=snap.data(); if(u.pass!==pass) return toast("Wrong password"); me=u; localStorage.setItem('meetchat_me',JSON.stringify(u)); toast("Welcome back "+u.username); openMain(); }catch(e){toast("Error: "+e.message);} };
+window.resetPass=async()=>{ const phone=document.getElementById('f_phone').value.trim(); const q=document.getElementById('f_q').value; const ans=document.getElementById('f_ans').value.trim().toLowerCase(); const np=document.getElementById('f_new').value; if(!phone||!ans||!np) return toast("Fill all"); try{ const ref=doc(db,"users",phone); const snap=await getDoc(ref); if(!snap.exists()) return toast("No account"); const u=snap.data(); if(u.q!==q||u.ans!==ans) return toast("Wrong security answer"); u.pass=np; await setDoc(ref,u); toast("Password reset! Sign In now"); showLogin(); }catch(e){toast("Error: "+e.message);} };
+window.logout=()=>{localStorage.removeItem('meetchat_me'); me=null; location.reload();}
+window.backToList=()=>{ if(unsub) unsub(); document.getElementById('chatPage').classList.add('hidden'); document.getElementById('mainPage').classList.remove('hidden'); loadUsers(); loadStatus(); };
+function openMain(){ document.getElementById('authPage').classList.add('hidden'); document.getElementById('mainPage').classList.remove('hidden'); document.getElementById('myName').innerText="Hi, "+me.username; document.getElementById('profileName').innerText=me.username; document.getElementById('profilePhone').innerText=me.phone; document.getElementById('settingsPhone').innerText=me.phone; if(me.pic) document.getElementById('myPic').src=me.pic; loadUsers(); loadStatus(); }
+// STATUS
+window.loadStatus=async()=>{ try{ const snap=await getDocs(collection(db,"statuses")); let html=`<div class="statusItem my" onclick="document.getElementById('addStatusBox').classList.remove('hidden')"><img src="${me.pic||'https://via.placeholder.com/58'}"><div class="plus">+</div><span>My Status</span></div>`; snap.forEach(d=>{ const s=d.data(); if(s.phone===me.phone) return; const img=s.pic||'https://via.placeholder.com/58'; html+=`<div class="statusItem" onclick='viewStatus("${s.username}","${img}","${s.text.replace(/"/g,"")}","${new Date(s.time).toLocaleTimeString()}")'><img src="${img}"><span>${s.username}</span></div>`; }); document.getElementById('statusRow').innerHTML=html; }catch(e){} };
+window.saveStatus=async()=>{ const txt=document.getElementById('statusText').value.trim(); if(!txt) return toast("Write status"); await setDoc(doc(db,"statuses",me.phone),{phone:me.phone,username:me.username,pic:me.pic||"",text:txt,time:Date.now()}); document.getElementById('addStatusBox').classList.add('hidden'); document.getElementById('statusText').value=""; toast("Status posted!"); loadStatus(); };
+window.viewStatus=(name,img,text,time)=>{ document.getElementById('svImg').src=img; document.getElementById('svName').innerText=name; document.getElementById('svText').innerText=text; document.getElementById('svTime').innerText=time; document.getElementById('statusViewer').classList.remove('hidden'); };
+window.closeStatus=()=>{ document.getElementById('statusViewer').classList.add('hidden'); };
+// CHATS + ADD CHAT
+window.loadUsers=async()=>{ const search=(document.getElementById('searchUser').value||"").toLowerCase(); try{ const snap=await getDocs(collection(db,"users")); let html=""; for(const d of snap.docs){ const u=d.data(); if(u.phone===me.phone) continue; if(search && !u.username.includes(search)) continue; const chatId=[me.phone,u.phone].sort().join("_"); const lastRead=parseInt(localStorage.getItem('lastRead_'+chatId)||'0'); let badge=""; let preview="Say hi to "+u.username; let timeStr=""; try{ const mq=query(collection(db,"chats",chatId,"messages"),orderBy("time")); const msnap=await getDocs(mq); if(!msnap.empty){ const lastDoc=msnap.docs[msnap.docs.length-1].data(); preview=(lastDoc.from===me.phone?"You: ":"")+lastDoc.text; timeStr=new Date(lastDoc.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); if(lastDoc.from!==me.phone && lastDoc.time>lastRead){ let count=0; msnap.forEach(doc=>{ if(doc.data().from!==me.phone && doc.data().time>lastRead) count++; }); badge=`<span class="badge">${count}</span>`; } } }catch(e){} const img=u.pic||"https://via.placeholder.com/52"; html+=`<div class="userRow" onclick='openChat("${u.phone}","${u.username}","${img}")'><img src="${img}"><div class="meta"><b>${u.username}</b><p>${preview}</p></div><div style="text-align:right"><div class="time">${timeStr}</div>${badge}</div></div>`; } document.getElementById('userList').innerHTML=html||"<p style='padding:15px;color:#777'>No chats yet. Go to Add Chat.</p>"; }catch(e){document.getElementById('userList').innerHTML="Error: "+e.message;} };
+window.loadAddUsers=async()=>{ try{ const snap=await getDocs(collection(db,"users")); let html=""; snap.forEach(d=>{ const u=d.data(); if(u.phone===me.phone) return; const img=u.pic||"https://via.placeholder.com/52"; html+=`<div class="userRow" onclick='openChat("${u.phone}","${u.username}","${img}")'><img src="${img}"><div class="meta"><b>${u.username}</b><p>${u.phone} • Tap to chat</p></div><span style="color:#0084ff;font-size:22px">➕</span></div>`; }); document.getElementById('addUserList').innerHTML=html||"No users yet"; }catch(e){} };
+window.openChat=(phone,username,img)=>{ currentChatUser={phone,username}; document.getElementById('mainPage').classList.add('hidden'); document.getElementById('chatPage').classList.remove('hidden'); document.getElementById('chatWith').innerText=username; document.getElementById('chatAvatar').src=img; const chatId=[me.phone,phone].sort().join("_"); localStorage.setItem('lastRead_'+chatId,Date.now().toString()); const q=query(collection(db,"chats",chatId,"messages"),orderBy("time")); if(unsub) unsub(); unsub=onSnapshot(q,(snap)=>{ let html=""; snap.forEach(d=>{ const m=d.data(); const cls=m.from===me.phone?"msg me":"msg other"; html+=`<div class="${cls}">${m.text}</div>`; }); const box=document.getElementById('chatBox'); box.innerHTML=html||"<p style='text-align:center;color:#999;margin-top:20px'>Say hi 👋</p>"; box.scrollTop=box.scrollHeight; localStorage.setItem('lastRead_'+chatId,Date.now().toString()); }); };
+window.sendMsg=async()=>{ const txt=document.getElementById('msgInput').value.trim(); if(!txt||!currentChatUser) return; const chatId=[me.phone,currentChatUser.phone]
