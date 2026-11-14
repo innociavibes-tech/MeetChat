@@ -1,1 +1,153 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>MEET CHAT</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+:root{--blue:#0B2A5B;--bg:#F2F5F9;--card:#fff;--text:#0F1A2E;--muted:#6B7A90;--line:#E6EBF2;--green:#1DB954;--red:#E5484D;--grey:#EAF0F8;--iphone-blue:#007AFF}
+body{background:var(--bg);color:var(--text)}
+body.dark{background:#0A1528;color:#EAF0F8}
+body.dark .card,body.dark header,body.dark .tabbar,body.dark .chat-input,body.dark .msg.other{background:#12203A;color:#EAF0F8;border-color:#1E3358}
+body.dark input,body.dark select{background:#0F1B30;color:#fff;border-color:#1E3358}
+body.dark .iconbtn{background:#1A2E4F;color:#fff}
+header{position:sticky;top:0;z-index:20;background:var(--blue);color:#fff;padding:14px 16px 12px}
+header h1{font-size:21px;letter-spacing:1.5px;font-weight:800}
+header p{font-size:12px;opacity:.85;margin-top:2px}
+.offline{display:none;background:#FFF3CD;color:#664D03;padding:8px 14px;font-size:13px;text-align:center}
+.offline.show{display:block}
+.wrap{max-width:520px;margin:0 auto;padding:0 0 84px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 12px}
+h2{font-size:18px;margin-bottom:6px}
+label{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.4px;text-transform:uppercase}
+input,select{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:10px;margin:6px 0 12px;font-size:15px;outline:none;background:#fff}
+input:focus{border-color:var(--blue)}
+.row{display:flex;gap:8px}.row select{flex:0 0 142px}
+.btn{width:100%;padding:13px;border:0;border-radius:11px;background:var(--blue);color:#fff;font-weight:800;font-size:15px;cursor:pointer}
+.btn:disabled{opacity:.5}.btn.sec{background:var(--grey);color:var(--blue)}.btn.danger{background:var(--red)}.btn.small{width:auto;padding:8px 14px;font-size:13px}
+.link{text-align:center;margin-top:12px;color:var(--blue);font-weight:700;cursor:pointer;font-size:14px}
+.muted{color:var(--muted);font-size:13px;line-height:1.5}.center{text-align:center;padding:28px 18px}.err{color:var(--red);font-size:13px;margin:-6px 0 10px;display:none}
+.avatar{width:48px;height:48px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}.avatar.small{width:36px;height:36px;font-size:14px}.avatar.big{width:72px;height:72px;font-size:26px}
+.status-row{display:flex;gap:12px;overflow-x:auto;padding:12px 12px 4px;scrollbar-width:none}
+.status-item{text-align:center;min-width:62px;cursor:pointer}.status-item .avatar{width:58px;height:58px;margin:0 auto;border:3px solid var(--blue)}
+.status-item span{font-size:11px;display:block;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62px}
+.list{padding:6px 12px}.item{display:flex;gap:12px;align-items:center;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer}
+.item b{font-size:15px}.item small{color:var(--muted);font-size:12px;display:block;margin-top:2px}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff;position:absolute;right:0;bottom:0}.rel{position:relative}
+.tabbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;max-width:520px;margin:0 auto;z-index:30}
+.tab{flex:1;padding:9px 4px 8px;text-align:center;cursor:pointer;color:var(--muted);font-size:11px;font-weight:700}.tab.active{color:var(--blue)}
+.chat-head{position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);padding:10px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #E5E5EA;z-index:10}
+.chat-head b{font-size:17px;font-weight:600}.chat-head small{font-size:12px;color:#8E8E93}
+#msgBox{padding:12px 12px 110px;background:#fff;min-height:60vh}
+.msg{max-width:75%;padding:9px 13px;border-radius:20px;margin:3px 12px;font-size:16px;line-height:1.35;position:relative;word-break:break-word}
+.msg.me{margin-left:auto;background:var(--iphone-blue);color:#fff;border-bottom-right-radius:5px}
+.msg.other{background:#E9E9EB;color:#000;border-bottom-left-radius:5px}
+.msg small{font-size:10px;opacity:.65;display:flex;gap:4px;justify-content:flex-end;margin-top:3px}
+.msg img,.msg video{width:100%;border-radius:14px;margin-top:4px;display:block}
+.msg .deleted{font-style:italic;opacity:.6}
+.chat-input{position:fixed;bottom:64px;left:0;right:0;max-width:520px;margin:0 auto;background:#fff;border-top:1px solid #E5E5EA;padding:8px 10px;display:flex;gap:8px;align-items:center}
+.chat-input input{margin:0;flex:1;background:#F2F2F7;border:1px solid #E5E5EA;border-radius:20px;padding:10px 14px;font-size:16px}
+.iconbtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:#F6F8FB;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.chat-input .btn.small{background:var(--iphone-blue);color:#fff;border-radius:50%;width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;font-size:18px}
+.toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:11px 16px;border-radius:999px;font-size:13px;z-index:99;display:none;max-width:92%;text-align:center}
+.badge{background:var(--blue);color:#fff;font-size:11px;padding:2px 7px;border-radius:999px}
+.pill{display:inline-block;padding:5px 10px;border-radius:999px;background:var(--grey);font-size:12px;font-weight:700;margin:3px 3px 0 0;cursor:pointer}
+.pill.on{background:var(--blue);color:#fff}.hidden{display:none!important}.flex{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.switch{width:44px;height:24px;background:#D1DCEA;border-radius:999px;position:relative;cursor:pointer;flex-shrink:0}
+.switch:after{content:"";position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.2s}
+.switch.on{background:var(--blue)}.switch.on:after{left:23px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal .card{width:100%;max-width:420px}
+#splash{position:fixed;inset:0;background:#0B2A5B;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;transition:opacity .4s}
+#splash.hide{opacity:0;pointer-events:none}
+#splash .logo{font-size:34px;font-weight:900;letter-spacing:3px}
+#splash .tag{font-size:13px;opacity:.8;margin-top:6px}
+#splash .bar-wrap{width:180px;height:3px;background:rgba(255,255,255,.25);border-radius:999px;margin-top:28px;overflow:hidden}
+#splash .bar{height:100%;width:0%;background:#fff;border-radius:999px;transition:width .3s}
+#splash .from{position:absolute;bottom:28px;font-size:13px;opacity:.9}
+#offlinePage{position:fixed;inset:0;background:#F2F5F9;z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+#offlinePage.show{display:flex}
+#offlinePage h2{font-size:22px;color:#0B2A5B}
+#offlinePage p{color:#6B7A90;font-size:14px;line-height:1.6;margin:10px 0 18px;max-width:340px}
+#typingBar{padding:8px 14px;display:none}
+#typingBar .bubble{background:#E9E9EB;padding:10px 14px;border-radius:20px;display:inline-flex;gap:4px}
+#typingBar .bubble span{width:7px;height:7px;background:#8E8E93;border-radius:50%;display:block;animation:blink 1s infinite}
+#typingBar .bubble span:nth-child(2){animation-delay:.15s}
+#typingBar .bubble span:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+.date-sep{text-align:center;margin:14px 0 8px}
+.date-sep span{background:#F2F2F7;color:#8E8E93;font-size:11px;padding:4px 10px;border-radius:999px}
+body.dark #msgBox{background:#000}
+body.dark .chat-head{background:rgba(28,28,30,.9)}
+body.dark .msg.other{background:#262628;color:#fff}
+body.dark .chat-input{background:#000;border-color:#2C2C2E}
+body.dark .chat-input input{background:#1C1C1E;border-color:#2C2C2E;color:#fff}
+</style>
+</head>
+<body>
+<div id="splash"><div class="logo">MEET CHAT</div><div class="tag">Private • Fast • Encrypted</div><div class="bar-wrap"><div class="bar" id="splashBar"></div></div><div class="from">From <b>INNO</b></div></div>
+<div id="offlinePage"><h2>You're Offline</h2><p>Check your connection. When you come back online, your messages will be sent automatically.</p><div class="card" style="width:100%;max-width:340px"><b>Offline Queue</b><br><span id="offlineCount" style="color:#6B7A90">0 messages waiting</span></div><button class="btn" style="max-width:340px;margin-top:16px" onclick="tryReconnect()">Try Again</button><p style="font-size:12px">From INNO • MEET CHAT</p></div>
+<div id="toast" class="toast"></div>
+<header><h1>MEET CHAT</h1><p>Private • Fast • Encrypted</p></header>
+<div id="offlineBanner" class="offline">You are offline. Messages will be sent when you are back online.</div>
+<div class="wrap">
+<div id="authView">
+<div class="card" id="registerCard"><h2>Create Account</h2><p class="muted">No OTP. Phone + Username + Password + Security Question.</p>
+<label>Phone Number</label><div class="row"><select id="regCountry"><option value="+256">UG +256</option><option value="+254">KE +254</option><option value="+255">TZ +255</option><option value="+250">RW +250</option><option value="+1">US +1</option><option value="+44">UK +44</option><option value="+234">NG +234</option><option value="+27">ZA +27</option></select><input id="regPhone" placeholder="771 234 567" inputmode="numeric"></div><div class="err" id="regPhoneErr">Enter valid phone number</div>
+<label>Username</label><input id="regUser" placeholder="john_kampala"><div class="err" id="regUserErr">Username 3-20 chars, letters, numbers, _ only</div>
+<label>Password</label><input id="regPass" type="password" placeholder="Minimum 6 characters">
+<label>Security Question</label><select id="regQ"><option>What is your mother's first name?</option><option>What is your favourite food?</option><option>What is your first school?</option></select>
+<label>Security Answer</label><input id="regAns" placeholder="Your answer">
+<label>Profile Picture (Optional)</label><input id="regPic" type="file" accept="image/*">
+<button class="btn" id="regBtn" onclick="doRegister()">CREATE ACCOUNT</button><div class="link" onclick="showLogin()">Already have account? Login</div></div>
+<div class="card hidden" id="loginCard"><h2>Welcome Back</h2><p class="muted">Login with phone number + password.</p>
+<label>Phone Number</label><div class="row"><select id="logCountry"><option value="+256">UG +256</option><option value="+254">KE +254</option><option value="+255">TZ +255</option><option value="+250">RW +250</option><option value="+1">US +1</option><option value="+44">UK +44</option><option value="+234">NG +234</option></select><input id="logPhone" placeholder="771 234 567" inputmode="numeric"></div>
+<label>Password</label><input id="logPass" type="password" placeholder="Password">
+<button class="btn" id="logBtn" onclick="doLogin()">LOGIN</button><div class="link" onclick="showForgot()">Forgot Password?</div><div class="link" onclick="showRegister()">Create new account</div></div>
+<div class="card hidden" id="forgotCard"><h2>Forgot Password</h2><p class="muted">Username + Security Answer. If correct, you login directly.</p>
+<label>Username</label><input id="forUser" placeholder="john_kampala"><label>Security Question</label><select id="forQ"><option>What is your mother's first name?</option><option>What is your favourite food?</option><option>What is your first school?</option></select><label>Security Answer</label><input id="forAns" placeholder="Your answer">
+<button class="btn" onclick="doForgot()">VERIFY & LOGIN</button><div class="link" onclick="showLogin()">Back to Login</div></div>
+</div>
+<div id="appView" class="hidden">
+<div id="tab-chats"><div class="status-row" id="statusRow"></div><div class="card" style="margin-top:6px"><div class="flex"><div><b>Chats</b><div class="muted" id="chatCount">No chats yet</div></div><button class="btn small sec" onclick="refreshAll()">Refresh</button></div></div><div class="list" id="chatList"></div><div class="center muted" id="emptyChats"><b>No chats yet</b><br>Go to Add Chat, send request, when accepted you can chat here.<br><br><button class="btn small" onclick="goTab('add')">Go to Add Chat</button></div></div>
+<div id="chatOpen" class="hidden">
+<div class="chat-head"><span style="cursor:pointer;font-size:24px;color:#007AFF" onclick="closeChat()">‹</span><div class="rel"><div class="avatar small" id="chatAvatar">M</div><span class="dot" id="chatDot" style="display:none"></span></div><div style="flex:1;text-align:center"><b id="chatName">Friend</b><br><small id="chatStatus">Offline</small></div><span class="iconbtn" onclick="startCall('voice')">Call</span><span class="iconbtn" onclick="startCall('video')">Video</span></div>
+<div id="typingBar"><span class="bubble"><span></span><span></span><span></span></span></div>
+<div id="msgBox"></div>
+<div class="chat-input"><span class="iconbtn" onclick="document.getElementById('chatFile').click()">+</span><input type="file" id="chatFile" accept="image/*,video/*" style="display:none"><input id="msgInput" placeholder="iMessage"><span class="iconbtn" onclick="document.getElementById('voiceFile').click()">Mic</span><input type="file" id="voiceFile" accept="audio/*" style="display:none"><button class="btn small" onclick="sendMsg()">↑</button></div>
+<div style="padding:10px 12px" class="muted">Disappearing: <span class="pill on" onclick="setDisappear(0,this)">Off</span><span class="pill" onclick="setDisappear(3600,this)">1 Hour</span><span class="pill" onclick="setDisappear(86400,this)">1 Day</span><span class="pill" onclick="setDisappear(604800,this)">7 Days</span> | View Once: <span class="pill" onclick="toggleViewOnce(this)">OFF</span></div>
+</div>
+<div id="tab-add" class="hidden"><div class="card"><h2>Add Chat</h2><p class="muted">All registered users. Phone numbers are never shown.</p><input id="searchUser" placeholder="Search username..." oninput="renderUsers()"></div><div class="card"><b>Friend Requests</b><div id="reqList" class="muted" style="margin-top:8px">No requests</div></div><div class="list" id="userList"></div></div>
+<div id="tab-settings" class="hidden">
+<div class="card"><div class="flex"><div style="display:flex;gap:12px;align-items:center"><div class="avatar" id="myAvatar">M</div><div><b id="myName">My Profile</b><br><span class="muted" id="myUser">@username</span><br><span class="badge" id="blueTick" style="display:none">VERIFIED</span></div></div><label class="iconbtn">Edit<input type="file" id="myPicInput" accept="image/*" style="display:none"></label></div><label>About</label><input id="myAbout" placeholder="Hey, I'm using MEET CHAT"><button class="btn sec" onclick="saveProfile()">Save Profile</button></div>
+<div class="card"><b>Appearance</b><div class="flex" style="margin-top:12px"><span>Dark Blue / White Mode</span><div class="switch" id="themeSwitch" onclick="toggleTheme()"></div></div><div class="flex" style="margin-top:12px"><span>Lite Mode - Data Saver</span><div class="switch" id="liteSwitch" onclick="toggleLite()"></div></div><div class="flex" style="margin-top:12px"><span>Ghost Mode - App Only Offline</span><div class="switch" id="ghostSwitch" onclick="toggleGhost()"></div></div></div>
+<div class="card"><b>Privacy</b><div class="flex" style="margin-top:12px"><span>Hide Last Seen</span><div class="switch" id="hideSeenSwitch" onclick="toggleHideSeen()"></div></div><div class="flex" style="margin-top:12px"><span>Hide Online Status</span><div class="switch" id="hideOnlineSwitch" onclick="toggleHideOnline()"></div></div><button class="btn sec" style="margin-top:12px" onclick="showBlocked()">See Who Blocked You / Blocked List</button><div id="blockedBox" class="muted" style="margin-top:8px"></div></div>
+<div class="card"><b>Security</b><div class="flex" style="margin-top:12px"><span>App Lock - PIN</span><div class="switch" id="lockSwitch" onclick="toggleLock()"></div></div><div id="lockBox" class="hidden"><label>Set App PIN</label><input id="appPin" placeholder="4 digit PIN" maxlength="4" inputmode="numeric"><button class="btn small" onclick="savePin()">Save PIN</button></div></div>
+<div class="card"><b>Accounts</b><div id="accountList" style="margin:10px 0"></div><button class="btn sec" onclick="switchAccount()">Switch Account</button></div>
+<div class="card"><b>Notifications</b><div id="notifList"></div></div>
+<div class="card"><b>More</b><button class="btn sec" onclick="sendFeedback()">Send Us Feedback</button><button class="btn sec" style="margin-top:8px" onclick="reportAdmin()">Report to Admin</button><button class="btn sec" style="margin-top:8px" onclick="buyBlueTick()">Payment for Blue Tick - Get Verified</button><button class="btn sec" style="margin-top:8px" onclick="toast('Checking for updates...')">Updates</button><button class="btn sec" style="margin-top:8px" onclick="shareApp()">Share App</button></div>
+<div class="card"><button class="btn danger" onclick="logout()">Logout</button></div>
+</div>
+</div>
+</div>
+<div class="tabbar hidden" id="tabBar">
+<div class="tab active" onclick="goTab('chats')" id="t-chats">CHATS</div>
+<div class="tab" onclick="goTab('add')" id="t-add">ADD CHAT</div>
+<div class="tab" onclick="goTab('settings')" id="t-settings">SETTINGS</div>
+</div>
+<div id="callModal" class="modal hidden"><div class="card center"><div class="avatar big" id="callAvatar" style="margin:0 auto">M</div><h2 id="callName" style="margin-top:12px">Friend</h2><p class="muted" id="callStatus">Ringing...</p><p class="muted" id="callTimer">00:00</p><div class="row" style="margin-top:16px"><button class="btn danger" onclick="endCall()">End Call</button><button class="btn sec" onclick="endCall()">Accept</button></div></div></div>
+<div id="statusModal" class="modal hidden"><div class="card center"><div class="avatar big" id="stAvatar" style="margin:0 auto">M</div><h2 id="stName" style="margin-top:10px">Status</h2><p class="muted" id="stText">Status text</p><div class="row" style="margin-top:14px"><button class="btn sec" onclick="saveStatus()">Save to Phone</button><button class="btn sec" onclick="repostStatus()">Repost</button></div><button class="btn" style="margin-top:8px" onclick="closeStatus()">Close</button></div></div>
+<script>
+// PASTE YOUR FIREBASE CONFIG HERE
+const FIREBASE_CONFIG = { apiKey:"PASTE", authDomain:"PASTE", projectId:"PASTE", storageBucket:"PASTE", messagingSenderId:"PASTE", appId:"PASTE" };
+let db=null, storage=null, me=null, currentFriend=null, disappearSec=0, viewOnceMode=false, allUsers=[], myFriends=[], requests=[], callStart=0, callTimerInt=null;
+let offlineQueue = JSON.parse(localStorage.getItem('meet_offline_queue') || '[]');
+try{ firebase.initializeApp(FIREBASE_CONFIG); db=firebase.firestore(); storage=firebase.storage(); }catch(e){ console.log(e); }
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.style.display='block'; setTimeout(()=>t.style.display='none',2800); }
+async function sha256(s){ const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+function validPhone(code,num){ const d=num.replace(/\D/g,''); if(code==='+256'||code==='+254'||code==='+255'||code==='+250') return d.length=
