@@ -1,102 +1,67 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #f0f2f5;
+  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  background: #0a1931;
   margin: 0;
   padding: 0;
-  color: #111;
+  color: white;
 }
 
 #splash {
-  background: #075e54;
+  background: #0a1931;
   color: white;
   text-align: center;
-  padding: 40px 10px;
+  padding: 80px 20px;
 }
-
-#splash h1 {
-  font-size: 32px;
-  margin: 0;
-}
+#splash h1 { font-size: 38px; margin: 0; }
+#splash p { color: #4da3ff; }
 
 #createPage, #loginPage {
   background: white;
-  margin: 15px;
-  padding: 20px;
-  border-radius: 12px;
+  color: black;
+  margin: 20px 15px;
+  padding: 25px 20px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
-
-#mainPage {
-  background: white;
-  margin: 0;
-}
-
-#topBar {
-  background: #075e54;
-  color: white;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-#topBar h1 {
-  margin: 0;
-  font-size: 22px;
+#createPage h2, #loginPage h2 {
+  text-align: center;
+  color: #0a1931;
+  font-size: 24px;
 }
 
 input, select {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   margin: 8px 0;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #f6f6f6;
   font-size: 15px;
+  box-sizing: border-box;
 }
 
 button {
-  background: #25d366;
+  background: #0a1931;
   color: white;
   border: none;
-  padding: 12px;
+  padding: 15px;
   width: 100%;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 16px;
   font-weight: bold;
-  margin-top: 10px;
-  cursor: pointer;
-}
-
-#bellBtn {
-  width: auto;
-  background: white;
-  color: #075e54;
-  padding: 8px 14px;
-}
-
-#statusSection, #chatsSection, #addChatSection, #settingsSection {
-  padding: 15px;
-  border-bottom: 1px solid #eee;
-}
-
-#bottomTabs {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  background: #f0f2f5;
-}
-
-#bottomTabs button {
-  background: #075e54;
-}
-
-#chatInside {
-  padding: 15px;
-  background: #e5ddd5;
+  margin-top: 12px;
 }
 
 #goLogin, #goForgot {
-  color: #075e54;
+  color: #0a1931;
   text-align: center;
   font-weight: bold;
+  margin-top: 15px;
 }
+
+#mainPage { background: white; color: black; }
+#topBar { background: #0a1931; color: white; padding: 15px; }
+#topBar h1 { margin: 0; }
+#bottomTabs { display: flex; gap: 10px; padding: 10px; background: #f0f2f5; }
+#bottomTabs button { background: #0a1931; }
+#chatInside { padding: 15px; background: #e5ddd5; color: black; }
