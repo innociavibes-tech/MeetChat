@@ -2,18 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MeetChat</title>
+<!-- FIREBASE COMPAT - NOT MODULE - WORKS ON SLOW DATA -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
-*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',Arial,sans-serif;margin:0;padding:0}
-:root{--dark:#0A1A3C;--bg:#F2F2F7;--line:#E5E5EA;--gray:#8A8A8E;--green:#34C759;--red:#FF3B30}
-body{background:var(--bg)}
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;margin:0;padding:0}
+body{background:#F2F2F7}
 .hidden{display:none!important}
+/* SPLASH - INSTAGRAM BAR - NOW VISIBLE */
 #splash{position:fixed;inset:0;background:#0A1A3C;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white}
-#splash .barWrap{position:absolute;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,.25)}
-#splash .bar{height:100%;width:0%;background:white}
+#splash .barWrap{position:absolute;top:0;left:0;right:0;height:6px;background:rgba(255,255,255,.3)}
+#splash .bar{height:100%;width:0%;background:#fff;box-shadow:0 0 10px #fff}
 #splash h1{font-size:52px;font-weight:800;letter-spacing:2px}
-#splash p{opacity:.8;margin-top:8px;font-size:15px}
+#splash p{opacity:.9;margin-top:8px;font-size:16px}
+#splash .pct{margin-top:14px;font-size:13px;opacity:.8}
 #splash .from{position:absolute;bottom:38px;font-size:14px}
 #offlineBar{background:#FF3B30;color:white;text-align:center;padding:10px;font-size:13px;font-weight:600;display:none}
 #offlinePage{position:fixed;inset:0;background:white;z-index:9998;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px}
@@ -31,12 +35,12 @@ label{font-size:13px;font-weight:600;margin-top:14px;display:block}input,select{
 .msg{max-width:78%;padding:11px 15px;border-radius:20px;margin:5px 0;font-size:16px;line-height:1.4}.me{background:#0A1A3C;color:white;margin-left:auto;border-bottom-right-radius:6px}.other{background:white;margin-right:auto;border-bottom-left-radius:6px}.msg small{display:block;font-size:11px;opacity:.7;margin-top:4px;text-align:right}.msg img{max-width:100%;border-radius:12px}.msg video{max-width:100%;border-radius:12px}.msg audio{width:180px}.msg .acts{font-size:12px;margin-top:6px;display:flex;gap:10px}.msg .acts span{cursor:pointer}.viewOnce{background:#000;color:white;padding:18px;text-align:center;border-radius:12px;cursor:pointer}
 #chatBox{height:calc(100vh - 250px);overflow-y:auto;padding:14px;background:#F2F2F7}
 .chatHeader{background:white;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 0 #E5E5EA;position:sticky;top:0;z-index:10}.chatHeader img{width:42px;height:42px;border-radius:50%;object-fit:cover}
-.chatInput{position:fixed;bottom:0;left:0;right:0;background:white;padding:8px;z-index:20}.chatInput .row{display:flex;gap:6px;align-items:center}.chatInput input{margin:0;border-radius:25px;background:#F2F2F7;flex:1}.iconBtn{width:42px;height:42px;border-radius:50%;background:#F2F2F7;border:none;font-size:16px;cursor:pointer;flex-shrink:0}.sendBtn{background:#0A1A3C;color:white}.emojiBar{display:none;gap:8px;padding:8px 4px 0;overflow-x:auto}.emojiBar span{font-size:22px;cursor:pointer}
+.chatInput{position:fixed;bottom:0;left:0;right:0;background:white;padding:8px;z-index:20}.chatInput .row{display:flex;gap:6px;align-items:center}.chatInput input{margin:0;border-radius:25px;background:#F2F2F7;flex:1}.iconBtn{width:42px;height:42px;border-radius:50%;background:#F2F2F7;border:none;font-size:14px;cursor:pointer;flex-shrink:0}.sendBtn{background:#0A1A3C;color:white}.emojiBar{display:none;gap:8px;padding:8px 4px 0;overflow-x:auto}.emojiBar span{font-size:22px;cursor:pointer}
 .tabs{display:flex;background:white;border-top:1px solid #E5E5EA;position:fixed;bottom:0;left:0;right:0;z-index:20}.tab{flex:1;text-align:center;padding:10px 0 8px;font-size:12px;color:#8A8A8E;cursor:pointer}.tab.active{color:#0A1A3C;font-weight:700}
 .profilePic{width:95px;height:95px;border-radius:50%;object-fit:cover;display:block;margin:10px auto}.settingRow{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #F2F2F7}
 #toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:#000;color:white;padding:12px 18px;border-radius:25px;z-index:10000;display:none;font-size:14px;max-width:90%;text-align:center}
 #statusViewer{position:fixed;inset:0;background:#000;z-index:10001;display:none;flex-direction:column;justify-content:center;align-items:center;color:white;padding:20px;text-align:center}#statusViewer img{width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid white}
-#callScreen{position:fixed;inset:0;background:#0A1A3C;z-index:10002;display:none;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center}#callScreen img{width:110px;height:110px;border-radius:50%;object-fit:cover}#callScreen .dur{font-size:28px;margin:18px 0}.callBtns{display:flex;gap:18px;margin-top:30px}.callBtns button{width:64px;height:64px;border-radius:50%;border:none;font-size:18px;cursor:pointer}
+#callScreen{position:fixed;inset:0;background:#0A1A3C;z-index:10002;display:none;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center}#callScreen img{width:110px;height:110px;border-radius:50%;object-fit:cover}#callScreen .dur{font-size:28px;margin:18px 0}.callBtns{display:flex;gap:18px;margin-top:30px}.callBtns button{width:64px;height:64px;border-radius:50%;border:none;font-size:16px;cursor:pointer}
 .empty{text-align:center;padding:30px 10px;color:#8A8A8E}.toggle{width:52px;height:30px;background:#E5E5EA;border-radius:20px;position:relative;cursor:pointer;flex-shrink:0}.toggle.on{background:#34C759}.toggle:after{content:'';position:absolute;left:3px;top:3px;width:24px;height:24px;background:white;border-radius:50%}.toggle.on:after{left:25px}
 body.darkMode{background:#000;color:#fff}body.darkMode .card,body.darkMode .topBar,body.darkMode .chatHeader,body.darkMode .chatInput,body.darkMode .tabs,body.darkMode .authWrap{background:#1C1C1E;color:#fff}body.darkMode input,body.darkMode select{background:#2C2C2E;color:#fff}
 </style>
@@ -44,46 +48,46 @@ body.darkMode{background:#000;color:#fff}body.darkMode .card,body.darkMode .topB
 <body>
 <div id="toast"></div>
 <div id="offlineBar">You are offline - When you come back online your messages will be sent</div>
-
-<!-- SPLASH - FIRST VERSION THAT WAS WORKING -->
-<div id="splash"><div class="barWrap"><div class="bar" id="splashBar"></div></div><h1>MeetChat</h1><p>Private & Secure</p><p style="font-size:12px;opacity:.7;margin-top:18px">End-to-End Encrypted</p><div class="from">From <b>INNO</b></div></div>
-
+<div id="splash"><div class="barWrap"><div class="bar" id="splashBar"></div></div><h1>MeetChat</h1><p>Private & Secure</p><p style="font-size:12px;opacity:.7;margin-top:18px">End-to-End Encrypted</p><div class="pct" id="splashPct">Loading 0%</div><div class="from">From <b>INNO</b></div></div>
 <div id="offlinePage"><h2>You are Offline</h2><p>Check your connection.<br>When you come back online<br>your messages will be sent automatically.</p><button class="btn" style="max-width:220px" onclick="document.getElementById('offlinePage').style.display='none'">Try Again</button></div>
 
-<!-- SPLASH FIX - NORMAL SCRIPT, NOT MODULE, ALWAYS RUNS -->
 <script>
+// SPLASH - NORMAL SCRIPT - ALWAYS WORKS - VISIBLE BAR
 (function(){
   var bar=document.getElementById('splashBar');
+  var pct=document.getElementById('splashPct');
   var prog=0;
   var timer=setInterval(function(){
-    prog+=10;
+    prog+=5;
     if(bar) bar.style.width=prog+'%';
+    if(pct) pct.innerText='Loading '+prog+'%';
     if(prog>=100){
       clearInterval(timer);
       setTimeout(function(){
-        var s=document.getElementById('splash');
-        if(s) s.style.display='none';
-        var a=document.getElementById('authPage');
-        if(a) a.classList.remove('hidden');
+        document.getElementById('splash').style.display='none';
+        document.getElementById('authPage').classList.remove('hidden');
       },300);
     }
-  },120);
+  },60);
   setTimeout(function(){
     var s=document.getElementById('splash');
     if(s && s.style.display!=='none'){ s.style.display='none'; document.getElementById('authPage').classList.remove('hidden'); }
-  },3000);
+  },4000);
 })();
 </script>
 
 <div id="authPage" class="hidden"><div class="authWrap"><h1>MeetChat</h1>
+<!-- CREATE ACCOUNT - YOUR WORDS -->
 <div id="createBox"><h2>Create Account</h2><p class="sub">Phone + Username + Password + Security Question. No OTP.</p>
 <label>Phone Number</label><div class="phoneRow"><select id="c_code"><option value="+256" selected>UG +256</option><option value="+254">KE +254</option><option value="+255">TZ +255</option><option value="+250">RW +250</option><option value="+234">NG +234</option><option value="+233">GH +233</option><option value="+27">ZA +27</option><option value="+1">US +1</option><option value="+44">UK +44</option><option value="+91">IN +91</option><option value="+971">AE +971</option></select><input id="c_phone" placeholder="771234567" inputmode="numeric"></div>
 <label>Username</label><input id="c_user" placeholder="e.g inno"><label>Password</label><input id="c_pass" type="password" placeholder="Min 6 characters">
 <label>Security Question</label><select id="c_q"><option>What is your mother's first name?</option><option>What is your pet name?</option><option>What is your birth town?</option><option>What is your favourite food?</option></select>
 <label>Security Answer</label><input id="c_ans" placeholder="e.g mama"><label>About</label><input id="c_about" placeholder="Hey there! I am using MeetChat">
-<label>Profile Picture</label><input id="c_pic" type="file" accept="image/*"><button class="btn" onclick="createAccount()">CREATE ACCOUNT</button><div class="link" onclick="showLogin()">Already have account? Sign In</div></div>
-<div id="loginBox" class="hidden"><h2>Welcome Back</h2><p class="sub">Sign in with phone number and password</p><label>Phone Number</label><div class="phoneRow"><select id="l_code"><option value="+256" selected>UG +256</option><option value="+254">KE +254</option><option value="+255">TZ +255</option><option value="+250">RW +250</option><option value="+234">NG +234</option><option value="+233">GH +233</option><option value="+27">ZA +27</option><option value="+1">US +1</option><option value="+44">UK +44</option><option value="+91">IN +91</option><option value="+971">AE +971</option></select><input id="l_phone" placeholder="771234567" inputmode="numeric"></div><label>Password</label><input id="l_pass" type="password" placeholder="Password"><button class="btn" onclick="login()">SIGN IN</button><div class="link" onclick="forgot()">Forgot Password?</div><div class="link" onclick="showCreate()">No account? Create Account</div></div>
-<div id="forgotBox" class="hidden"><h2>Forgot Password</h2><p class="sub">Enter username + security answer. If correct, you login.</p><label>Username</label><input id="f_user" placeholder="e.g inno"><label>Security Question</label><select id="f_q"><option>What is your mother's first name?</option><option>What is your pet name?</option><option>What is your birth town?</option><option>What is your favourite food?</option></select><label>Security Answer</label><input id="f_ans" placeholder="Your answer"><button class="btn" onclick="forgotLogin()">LOGIN TO MY ACCOUNT</button><div class="link" onclick="showLogin()">Back to Sign In</div></div>
+<label>Profile Picture</label><input id="c_pic" type="file" accept="image/*"><button class="btn" onclick="createAccount()">CREATE ACCOUNT</button><div class="link" onclick="showLogin()">Already have account? LOGIN</div></div>
+<!-- LOGIN - YOUR WORDS: LOGIN, FORGOT PASSWORD -->
+<div id="loginBox" class="hidden"><h2>Login</h2><p class="sub">Login with phone number and password</p><label>Phone Number</label><div class="phoneRow"><select id="l_code"><option value="+256" selected>UG +256</option><option value="+254">KE +254</option><option value="+255">TZ +255</option><option value="+250">RW +250</option><option value="+234">NG +234</option><option value="+233">GH +233</option><option value="+27">ZA +27</option><option value="+1">US +1</option><option value="+44">UK +44</option><option value="+91">IN +91</option><option value="+971">AE +971</option></select><input id="l_phone" placeholder="771234567" inputmode="numeric"></div><label>Password</label><input id="l_pass" type="password" placeholder="Password"><button class="btn" onclick="login()">LOGIN</button><div class="link" onclick="forgot()">FORGOT PASSWORD</div><div class="link" onclick="showCreate()">No account? Create Account</div></div>
+<!-- FORGOT PASSWORD - USERNAME + SECURITY = LOGIN -->
+<div id="forgotBox" class="hidden"><h2>Forgot Password</h2><p class="sub">Enter username + security answer. If correct, you login to your account.</p><label>Username</label><input id="f_user" placeholder="e.g inno"><label>Security Question</label><select id="f_q"><option>What is your mother's first name?</option><option>What is your pet name?</option><option>What is your birth town?</option><option>What is your favourite food?</option></select><label>Security Answer</label><input id="f_ans" placeholder="Your answer"><button class="btn" onclick="forgotLogin()">LOGIN TO MY ACCOUNT</button><div class="link" onclick="showLogin()">Back to LOGIN</div></div>
 </div></div>
 
 <div id="mainPage" class="hidden">
@@ -106,7 +110,7 @@ body.darkMode{background:#000;color:#fff}body.darkMode .card,body.darkMode .topB
 <div class="settingRow"><span>Blue Tick</span><button class="btn" style="width:auto;padding:10px;margin:0;background:#1DA1F2" onclick="buyBlueTick()">Pay Blue Tick</button></div>
 <div class="settingRow"><span>Notifications</span><div class="toggle on" id="notifToggle" onclick="toggleSetting('notif')"></div></div>
 <p style="margin:14px 0">Version: <b>MeetChat 2.0</b></p>
-<button class="btn btn-gray" onclick="reportAdmin()">Report to Admin</button><button class="btn btn-gray" onclick="sendFeedback()">Send Feedback</button><button class="btn btn-gray" onclick="shareApp()">Share App</button><button class="btn btn-gray" onclick="checkUpdates()">Check Updates</button><button class="btn btn-gray" onclick="logout()">Logout</button>
+<button class="btn btn-gray" onclick="reportAdmin()">Report to Admin</button><button class="btn btn-gray" onclick="sendFeedback()">Send Us Feedback</button><button class="btn btn-gray" onclick="shareApp()">Share App</button><button class="btn btn-gray" onclick="checkUpdates()">Check Updates</button><button class="btn btn-gray" onclick="logout()">Logout</button>
 </div></div>
 </div>
 <div class="tabs"><div class="tab active" onclick="switchTab('chats',this)">Chats</div><div class="tab" onclick="switchTab('add',this)">Add Chat</div><div class="tab" onclick="switchTab('settings',this)">Settings</div></div>
@@ -124,13 +128,11 @@ body.darkMode{background:#000;color:#fff}body.darkMode .card,body.darkMode .topB
 <div id="addStatusBox" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10002;display:flex;align-items:center;justify-content:center;padding:20px"><div style="background:white;border-radius:20px;padding:22px;width:100%;max-width:380px"><h3>Add Status</h3><input id="statusText" placeholder="What is on your mind?"><button class="btn" onclick="saveStatus()">POST STATUS</button><button class="btn btn-gray" onclick="document.getElementById('addStatusBox').classList.add('hidden')">Cancel</button></div></div>
 <div id="callScreen"><img id="callAvatar" src="https://via.placeholder.com/110"><h2 id="callName">Calling...</h2><p id="callType">Voice Call - Encrypted</p><div class="dur" id="callDuration">00:00</div><p id="callStatus">Ringing...</p><div class="callBtns"><button style="background:#34C759" onclick="acceptCall()">Accept</button><button style="background:#FF3B30" onclick="endCall()">End</button></div></div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig = { apiKey: "AIzaSyBleFoBV36jw2mGbmZgO7lrFtG4VswtPk8", authDomain: "meetchat-cab0c.firebaseapp.com", projectId: "meetchat-cab0c", storageBucket: "meetchat-cab0c.firebasestorage.app", messagingSenderId: "722069770375", appId: "1:722069770375:web:e6d195f8476cb7b069e822" };
-const app = initializeApp(firebaseConfig); const db = getFirestore(app);
-let me=null; try{ me=JSON.parse(localStorage.getItem('meetchat_me')||'null'); }catch(e){me=null}
-let currentChatUser=null, unsub=null, pendingQueue=JSON.parse(localStorage.getItem('meetchat_pending')||'[]');
-let viewOnceMode=false, isRecording=false, mediaRecorder=null, audioChunks=[], callTimer=null, callSeconds=0, currentStatus=null, settings=JSON.parse(localStorage.getItem('meetchat_settings')||'{}');
-if(settings.theme==='dark') document.body.classList.add('darkMode');
-window.toast=function(t){ const el=document.getElementById('toast'); el.innerText=t; el.style.display='block'; setTimeo
+<script>
+// FIREBASE COMPAT - NOT MODULE - THIS IS WHY CREATE ACCOUNT NOW WORKS
+var firebaseConfig = { apiKey: "AIzaSyBleFoBV36jw2mGbmZgO7lrFtG4VswtPk8", authDomain: "meetchat-cab0c.firebaseapp.com", projectId: "meetchat-cab0c", storageBucket: "meetchat-cab0c.firebasestorage.app", messagingSenderId: "722069770375", appId: "1:722069770375:web:e6d195f8476cb7b069e822" };
+try{ firebase.initializeApp(firebaseConfig); }catch(e){}
+var db = firebase.firestore();
+var me=null; try{ me=JSON.parse(localStorage.getItem('meetchat_me')||'null'); }catch(e){me=null}
+var currentChatUser=null, unsub=null, pendingQueue=JSON.parse(localStorage.getItem('meetchat_pending')||'[]');
+var viewOnceMode=false, isRecording=false, mediaRecorder=null, audioChunks=[], callTimer=null, callSeconds=0, currentStatus=null, settings=JSON.parse(localStorage.getItem('meetchat_setti
