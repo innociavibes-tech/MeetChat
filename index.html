@@ -4,17 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MeetChat</title>
-<!-- FIREBASE COMPAT - NOT MODULE - WORKS ON SLOW DATA -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;margin:0;padding:0}
 body{background:#F2F2F7}
 .hidden{display:none!important}
-/* SPLASH - INSTAGRAM BAR - NOW VISIBLE */
 #splash{position:fixed;inset:0;background:#0A1A3C;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white}
 #splash .barWrap{position:absolute;top:0;left:0;right:0;height:6px;background:rgba(255,255,255,.3)}
-#splash .bar{height:100%;width:0%;background:#fff;box-shadow:0 0 10px #fff}
+#splash .bar{height:100%;width:0%;background:#fff}
 #splash h1{font-size:52px;font-weight:800;letter-spacing:2px}
 #splash p{opacity:.9;margin-top:8px;font-size:16px}
 #splash .pct{margin-top:14px;font-size:13px;opacity:.8}
@@ -43,6 +41,8 @@ label{font-size:13px;font-weight:600;margin-top:14px;display:block}input,select{
 #callScreen{position:fixed;inset:0;background:#0A1A3C;z-index:10002;display:none;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center}#callScreen img{width:110px;height:110px;border-radius:50%;object-fit:cover}#callScreen .dur{font-size:28px;margin:18px 0}.callBtns{display:flex;gap:18px;margin-top:30px}.callBtns button{width:64px;height:64px;border-radius:50%;border:none;font-size:16px;cursor:pointer}
 .empty{text-align:center;padding:30px 10px;color:#8A8A8E}.toggle{width:52px;height:30px;background:#E5E5EA;border-radius:20px;position:relative;cursor:pointer;flex-shrink:0}.toggle.on{background:#34C759}.toggle:after{content:'';position:absolute;left:3px;top:3px;width:24px;height:24px;background:white;border-radius:50%}.toggle.on:after{left:25px}
 body.darkMode{background:#000;color:#fff}body.darkMode .card,body.darkMode .topBar,body.darkMode .chatHeader,body.darkMode .chatInput,body.darkMode .tabs,body.darkMode .authWrap{background:#1C1C1E;color:#fff}body.darkMode input,body.darkMode select{background:#2C2C2E;color:#fff}
+.bell{position:relative;font-size:24px;cursor:pointer}.bellCount{position:absolute;top:-6px;right:-8px;background:#FF3B30;color:white;font-size:11px;font-weight:700;min-width:18px;height:18px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+#notifPanel{position:fixed;top:0;right:0;bottom:0;width:100%;max-width:380px;background:white;z-index:10003;display:none;flex-direction:column;box-shadow:-2px 0 20px rgba(0,0,0,.2)}.notifItem{padding:14px;border-bottom:1px solid #F2F2F7}.notifItem b{font-size:14px}.notifItem p{font-size:13px;color:#8A8A8E;margin-top:3px}
 </style>
 </head>
 <body>
@@ -50,9 +50,7 @@ body.darkMode{background:#000;color:#fff}body.darkMode .card,body.darkMode .topB
 <div id="offlineBar">You are offline - When you come back online your messages will be sent</div>
 <div id="splash"><div class="barWrap"><div class="bar" id="splashBar"></div></div><h1>MeetChat</h1><p>Private & Secure</p><p style="font-size:12px;opacity:.7;margin-top:18px">End-to-End Encrypted</p><div class="pct" id="splashPct">Loading 0%</div><div class="from">From <b>INNO</b></div></div>
 <div id="offlinePage"><h2>You are Offline</h2><p>Check your connection.<br>When you come back online<br>your messages will be sent automatically.</p><button class="btn" style="max-width:220px" onclick="document.getElementById('offlinePage').style.display='none'">Try Again</button></div>
-
 <script>
-// SPLASH - NORMAL SCRIPT - ALWAYS WORKS - VISIBLE BAR
 (function(){
   var bar=document.getElementById('splashBar');
   var pct=document.getElementById('splashPct');
@@ -61,37 +59,27 @@ body.darkMode{background:#000;color:#fff}body.darkMode .card,body.darkMode .topB
     prog+=5;
     if(bar) bar.style.width=prog+'%';
     if(pct) pct.innerText='Loading '+prog+'%';
-    if(prog>=100){
-      clearInterval(timer);
-      setTimeout(function(){
-        document.getElementById('splash').style.display='none';
-        document.getElementById('authPage').classList.remove('hidden');
-      },300);
-    }
+    if(prog>=100){ clearInterval(timer); setTimeout(function(){ document.getElementById('splash').style.display='none'; document.getElementById('authPage').classList.remove('hidden'); },300); }
   },60);
-  setTimeout(function(){
-    var s=document.getElementById('splash');
-    if(s && s.style.display!=='none'){ s.style.display='none'; document.getElementById('authPage').classList.remove('hidden'); }
-  },4000);
+  setTimeout(function(){ var s=document.getElementById('splash'); if(s && s.style.display!=='none'){ s.style.display='none'; document.getElementById('authPage').classList.remove('hidden'); } },4000);
 })();
 </script>
-
 <div id="authPage" class="hidden"><div class="authWrap"><h1>MeetChat</h1>
-<!-- CREATE ACCOUNT - YOUR WORDS -->
 <div id="createBox"><h2>Create Account</h2><p class="sub">Phone + Username + Password + Security Question. No OTP.</p>
 <label>Phone Number</label><div class="phoneRow"><select id="c_code"><option value="+256" selected>UG +256</option><option value="+254">KE +254</option><option value="+255">TZ +255</option><option value="+250">RW +250</option><option value="+234">NG +234</option><option value="+233">GH +233</option><option value="+27">ZA +27</option><option value="+1">US +1</option><option value="+44">UK +44</option><option value="+91">IN +91</option><option value="+971">AE +971</option></select><input id="c_phone" placeholder="771234567" inputmode="numeric"></div>
 <label>Username</label><input id="c_user" placeholder="e.g inno"><label>Password</label><input id="c_pass" type="password" placeholder="Min 6 characters">
 <label>Security Question</label><select id="c_q"><option>What is your mother's first name?</option><option>What is your pet name?</option><option>What is your birth town?</option><option>What is your favourite food?</option></select>
 <label>Security Answer</label><input id="c_ans" placeholder="e.g mama"><label>About</label><input id="c_about" placeholder="Hey there! I am using MeetChat">
 <label>Profile Picture</label><input id="c_pic" type="file" accept="image/*"><button class="btn" onclick="createAccount()">CREATE ACCOUNT</button><div class="link" onclick="showLogin()">Already have account? LOGIN</div></div>
-<!-- LOGIN - YOUR WORDS: LOGIN, FORGOT PASSWORD -->
 <div id="loginBox" class="hidden"><h2>Login</h2><p class="sub">Login with phone number and password</p><label>Phone Number</label><div class="phoneRow"><select id="l_code"><option value="+256" selected>UG +256</option><option value="+254">KE +254</option><option value="+255">TZ +255</option><option value="+250">RW +250</option><option value="+234">NG +234</option><option value="+233">GH +233</option><option value="+27">ZA +27</option><option value="+1">US +1</option><option value="+44">UK +44</option><option value="+91">IN +91</option><option value="+971">AE +971</option></select><input id="l_phone" placeholder="771234567" inputmode="numeric"></div><label>Password</label><input id="l_pass" type="password" placeholder="Password"><button class="btn" onclick="login()">LOGIN</button><div class="link" onclick="forgot()">FORGOT PASSWORD</div><div class="link" onclick="showCreate()">No account? Create Account</div></div>
-<!-- FORGOT PASSWORD - USERNAME + SECURITY = LOGIN -->
 <div id="forgotBox" class="hidden"><h2>Forgot Password</h2><p class="sub">Enter username + security answer. If correct, you login to your account.</p><label>Username</label><input id="f_user" placeholder="e.g inno"><label>Security Question</label><select id="f_q"><option>What is your mother's first name?</option><option>What is your pet name?</option><option>What is your birth town?</option><option>What is your favourite food?</option></select><label>Security Answer</label><input id="f_ans" placeholder="Your answer"><button class="btn" onclick="forgotLogin()">LOGIN TO MY ACCOUNT</button><div class="link" onclick="showLogin()">Back to LOGIN</div></div>
 </div></div>
 
+<!-- NOTIFICATION PANEL - REAL NOTIFICATIONS -->
+<div id="notifPanel"><div style="padding:16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E5E5EA"><h3>Notifications</h3><button class="btn" style="width:auto;padding:8px 14px;margin:0" onclick="clearNotifs()">Clear All</button></div><div style="padding:16px;display:flex;justify-content:space-between"><span id="notifCountText">0 notifications</span><button onclick="document.getElementById('notifPanel').style.display='none'" style="border:none;background:none;font-size:20px;cursor:pointer">X</button></div><div id="notifList" style="overflow-y:auto;flex:1"></div></div>
+
 <div id="mainPage" class="hidden">
-<div class="topBar"><div><h1>MeetChat</h1><small id="status" style="color:#34C759">Connected - Encrypted</small></div><b id="myName"></b></div>
+<div class="topBar"><div><h1>MeetChat</h1><small id="status" style="color:#34C759">Connected - Encrypted</small></div><div style="display:flex;gap:14px;align-items:center"><div class="bell" onclick="openNotifs()">🔔<span class="bellCount" id="bellCount">0</span></div><b id="myName"></b></div></div>
 <div class="content">
 <div id="tabChats"><div class="statusRow" id="statusRow"></div><div class="card"><h3>Chats</h3><input id="searchUser" placeholder="Search..." oninput="loadUsers()"><div id="userList"></div></div></div>
 <div id="tabAdd" class="hidden"><div class="card"><h3>Add Chat</h3><p style="color:#8A8A8E;font-size:14px">All users by username. Phone numbers hidden.</p><div id="friendRequests"></div><div id="addUserList"></div></div></div>
@@ -109,13 +97,13 @@ body.darkMode{background:#000;color:#fff}body.darkMode .card,body.darkMode .topB
 <div class="settingRow"><span>See Who Blocked You</span><button class="btn" style="width:auto;padding:10px;margin:0" onclick="showBlocked()">View</button></div>
 <div class="settingRow"><span>Blue Tick</span><button class="btn" style="width:auto;padding:10px;margin:0;background:#1DA1F2" onclick="buyBlueTick()">Pay Blue Tick</button></div>
 <div class="settingRow"><span>Notifications</span><div class="toggle on" id="notifToggle" onclick="toggleSetting('notif')"></div></div>
+<div class="settingRow"><span>Test Notification</span><button class="btn" style="width:auto;padding:10px;margin:0;background:#34C759" onclick="sendNotif('Test','This is how notification looks - MeetChat')">Test</button></div>
 <p style="margin:14px 0">Version: <b>MeetChat 2.0</b></p>
 <button class="btn btn-gray" onclick="reportAdmin()">Report to Admin</button><button class="btn btn-gray" onclick="sendFeedback()">Send Us Feedback</button><button class="btn btn-gray" onclick="shareApp()">Share App</button><button class="btn btn-gray" onclick="checkUpdates()">Check Updates</button><button class="btn btn-gray" onclick="logout()">Logout</button>
 </div></div>
 </div>
 <div class="tabs"><div class="tab active" onclick="switchTab('chats',this)">Chats</div><div class="tab" onclick="switchTab('add',this)">Add Chat</div><div class="tab" onclick="switchTab('settings',this)">Settings</div></div>
 </div>
-
 <div id="chatPage" class="hidden">
 <div class="chatHeader"><button onclick="backToList()" style="border:none;background:none;font-size:26px;cursor:pointer;color:#0A1A3C">‹</button><img id="chatAvatar" src="https://via.placeholder.com/42" onclick="viewProfilePic()"><div style="flex:1"><b id="chatWith">Chat</b><br><small id="chatOnline" style="color:#34C759">Online</small></div><button class="iconBtn" onclick="startCall('voice')">Call</button><button class="iconBtn" onclick="startCall('video')">Video</button><button class="iconBtn" onclick="blockUser()">Block</button></div>
 <div style="background:#FFF3CD;padding:8px 14px;font-size:12px;text-align:center" id="disappearBanner" class="hidden">Disappearing messages ON</div>
@@ -123,16 +111,5 @@ body.darkMode{background:#000;color:#fff}body.darkMode .card,body.darkMode .topB
 <div class="chatInput"><div class="row"><button class="iconBtn" onclick="toggleEmoji()">Emoji</button><input id="msgInput" placeholder="iMessage - Encrypted" oninput="onTyping()"><button class="iconBtn" onclick="document.getElementById('fileInput').click()">Attach</button><button class="iconBtn" id="viewOnceBtn" onclick="toggleViewOnce()">Eye</button><button class="iconBtn" onclick="startVoice()">Mic</button><button class="iconBtn sendBtn" onclick="sendMsg()">Send</button></div><div class="emojiBar" id="emojiBar"><span onclick="addEmoji('😂')">😂</span><span onclick="addEmoji('❤️')">❤️</span><span onclick="addEmoji('🔥')">🔥</span><span onclick="addEmoji('😍')">😍</span><span onclick="addEmoji('👍')">👍</span><span onclick="addEmoji('🙏')">🙏</span></div></div>
 <input type="file" id="fileInput" accept="image/*,video/*" style="display:none" onchange="sendFile(event)">
 </div>
-
 <div id="statusViewer"><img id="svImg" src=""><h3 id="svName"></h3><p id="svText"></p><small id="svTime" style="color:#aaa"></small><div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center"><button class="btn" style="width:auto;padding:12px 18px" onclick="likeStatus()">Like</button><button class="btn" style="width:auto;padding:12px 18px;background:#FF9500" onclick="repostStatus()">Repost 1 Tap</button><button class="btn" style="width:auto;padding:12px 18px;background:#34C759" onclick="saveStatusToPhone()">Save to Phone</button><button class="btn btn-gray" style="width:auto;padding:12px 18px" onclick="deleteStatus()">Delete Status</button></div><button class="btn btn-gray" style="max-width:200px" onclick="closeStatus()">Close</button></div>
-<div id="addStatusBox" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10002;display:flex;align-items:center;justify-content:center;padding:20px"><div style="background:white;border-radius:20px;padding:22px;width:100%;max-width:380px"><h3>Add Status</h3><input id="statusText" placeholder="What is on your mind?"><button class="btn" onclick="saveStatus()">POST STATUS</button><button class="btn btn-gray" onclick="document.getElementById('addStatusBox').classList.add('hidden')">Cancel</button></div></div>
-<div id="callScreen"><img id="callAvatar" src="https://via.placeholder.com/110"><h2 id="callName">Calling...</h2><p id="callType">Voice Call - Encrypted</p><div class="dur" id="callDuration">00:00</div><p id="callStatus">Ringing...</p><div class="callBtns"><button style="background:#34C759" onclick="acceptCall()">Accept</button><button style="background:#FF3B30" onclick="endCall()">End</button></div></div>
-
-<script>
-// FIREBASE COMPAT - NOT MODULE - THIS IS WHY CREATE ACCOUNT NOW WORKS
-var firebaseConfig = { apiKey: "AIzaSyBleFoBV36jw2mGbmZgO7lrFtG4VswtPk8", authDomain: "meetchat-cab0c.firebaseapp.com", projectId: "meetchat-cab0c", storageBucket: "meetchat-cab0c.firebasestorage.app", messagingSenderId: "722069770375", appId: "1:722069770375:web:e6d195f8476cb7b069e822" };
-try{ firebase.initializeApp(firebaseConfig); }catch(e){}
-var db = firebase.firestore();
-var me=null; try{ me=JSON.parse(localStorage.getItem('meetchat_me')||'null'); }catch(e){me=null}
-var currentChatUser=null, unsub=null, pendingQueue=JSON.parse(localStorage.getItem('meetchat_pending')||'[]');
-var viewOnceMode=false, isRecording=false, mediaRecorder=null, audioChunks=[], callTimer=null, callSeconds=0, currentStatus=null, settings=JSON.parse(localStorage.getItem('meetchat_setti
+<div id="addStatusBox" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10002;display:flex;align-items:center;justify-content:center;padding:20px"><div style="background:white;border-radius:20px;padding:22px;width:100%;max-width:380px"><h3>Add Status</h3><input id="statusText" placeholder="What is on your mind?"><button class="btn" onclick="saveStatus()">POST STATUS</button><button class="btn btn-gray" onclick="document.getElementById('addStatusBox').classList.add('hidden')">Cancel</button></d
