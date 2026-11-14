@@ -63,12 +63,13 @@ input:focus{border-color:var(--blue)}
 .switch.on{background:var(--blue)}.switch.on:after{left:23px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal .card{width:100%;max-width:420px}
-#splash{position:fixed;inset:0;background:#0B2A5B;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;transition:opacity .4s}
-#splash.hide{opacity:0;pointer-events:none}
+#splash{position:fixed;inset:0;background:#0B2A5B;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;animation:splashHide 0.5s ease 2.8s forwards}
+@keyframes splashHide{to{opacity:0;visibility:hidden}}
 #splash .logo{font-size:34px;font-weight:900;letter-spacing:3px}
 #splash .tag{font-size:13px;opacity:.8;margin-top:6px}
 #splash .bar-wrap{width:180px;height:3px;background:rgba(255,255,255,.25);border-radius:999px;margin-top:28px;overflow:hidden}
-#splash .bar{height:100%;width:0%;background:#fff;border-radius:999px;transition:width .3s}
+#splash .bar{height:100%;width:0%;background:#fff;border-radius:999px;animation:barFill 2.2s ease forwards}
+@keyframes barFill{to{width:100%}}
 #splash .from{position:absolute;bottom:28px;font-size:13px;opacity:.9}
 #offlinePage{position:fixed;inset:0;background:#F2F5F9;z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
 #offlinePage.show{display:flex}
@@ -90,7 +91,7 @@ body.dark .chat-input input{background:#1C1C1E;border-color:#2C2C2E;color:#fff}
 </style>
 </head>
 <body>
-<div id="splash"><div class="logo">MEET CHAT</div><div class="tag">Private • Fast • Encrypted</div><div class="bar-wrap"><div class="bar" id="splashBar"></div></div><div class="from">From <b>INNO</b></div></div>
+<div id="splash"><div class="logo">MEET CHAT</div><div class="tag">Private • Fast • Encrypted</div><div class="bar-wrap"><div class="bar"></div></div><div class="from">From <b>INNO</b></div></div>
 <div id="offlinePage"><h2>You're Offline</h2><p>Check your connection. When you come back online, your messages will be sent automatically.</p><div class="card" style="width:100%;max-width:340px"><b>Offline Queue</b><br><span id="offlineCount" style="color:#6B7A90">0 messages waiting</span></div><button class="btn" style="max-width:340px;margin-top:16px" onclick="tryReconnect()">Try Again</button><p style="font-size:12px">From INNO • MEET CHAT</p></div>
 <div id="toast" class="toast"></div>
 <header><h1>MEET CHAT</h1><p>Private • Fast • Encrypted</p></header>
@@ -147,7 +148,7 @@ body.dark .chat-input input{background:#1C1C1E;border-color:#2C2C2E;color:#fff}
 const FIREBASE_CONFIG = { apiKey:"PASTE", authDomain:"PASTE", projectId:"PASTE", storageBucket:"PASTE", messagingSenderId:"PASTE", appId:"PASTE" };
 let db=null, storage=null, me=null, currentFriend=null, disappearSec=0, viewOnceMode=false, allUsers=[], myFriends=[], requests=[], callStart=0, callTimerInt=null;
 let offlineQueue = JSON.parse(localStorage.getItem('meet_offline_queue') || '[]');
-try{ firebase.initializeApp(FIREBASE_CONFIG); db=firebase.firestore(); storage=firebase.storage(); }catch(e){ console.log(e); }
+try{ if(FIREBASE_CONFIG.apiKey!=="PASTE"){ firebase.initializeApp(FIREBASE_CONFIG); db=firebase.firestore(); storage=firebase.storage(); } }catch(e){ console.log(e); }
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.style.display='block'; setTimeout(()=>t.style.display='none',2800); }
 async function sha256(s){ const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
-function validPhone(code,num){ const d=num.replace(/\D/g,''); if(code==='+256'||code==='+254'||code==='+255'||code==='+250') return d.length=
+function validPhone(code,num){ c
