@@ -2,18 +2,17 @@
 <html>
 <head>
 <title>MeetChat</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- SPLASH -->
 <div id="splash">
   <h1>MeetChat</h1>
   <p>Private & Secure</p>
   <p>From INNO</p>
 </div>
 
-<!-- CREATE ACCOUNT -->
 <div id="createPage">
   <h2>Create Account</h2>
   <input id="regPhone" placeholder="Phone e.g 771234567">
@@ -29,7 +28,6 @@
   <p id="goLogin">Already have account? LOGIN</p>
 </div>
 
-<!-- LOGIN -->
 <div id="loginPage">
   <h2>Login</h2>
   <input id="loginPhone" placeholder="Phone">
@@ -38,57 +36,20 @@
   <p id="goForgot">FORGOT PASSWORD</p>
 </div>
 
-<!-- MAIN -->
 <div id="mainPage">
   <div id="topBar">
     <h1>MeetChat</h1>
-    <p>Connected</p>
     <button id="bellBtn">Bell 0</button>
   </div>
-
-  <div id="statusSection">
-    <h3>Status</h3>
-    <p>My Status</p>
-    <p>Friend Status</p>
-  </div>
-
-  <div id="chatsSection">
-    <h3>Chats</h3>
-    <input placeholder="Search...">
-    <p>No chats yet</p>
-  </div>
-
-  <div id="addChatSection">
-    <h3>Add Chat</h3>
-    <p>All users</p>
-  </div>
-
-  <div id="settingsSection">
-    <h3>Settings</h3>
-    <p>Profile Picture</p>
-    <p>Username</p>
-    <p>Phone</p>
-    <p>About</p>
-    <p>Theme</p>
-    <button>Logout</button>
-  </div>
-
-  <div id="bottomTabs">
-    <button>Chats</button>
-    <button>Add Chat</button>
-    <button>Settings</button>
-  </div>
-
-  <div id="chatInside">
-    <h3>Chat with inno</h3>
-    <p>Online</p>
-    <p>Hi bro</p>
-    <input placeholder="Type message...">
-    <button>Send</button>
-  </div>
+  <div id="statusSection"><h3>Status</h3><p>My Status</p><p>Friend Status</p></div>
+  <div id="chatsSection"><h3>Chats</h3><input placeholder="Search..."><p>No chats yet</p></div>
+  <div id="addChatSection"><h3>Add Chat</h3><p>All users</p></div>
+  <div id="settingsSection"><h3>Settings</h3><p>Profile Picture</p><p>Username</p><p>Phone</p><p>About</p><p>Theme</p><button>Logout</button></div>
+  <div id="bottomTabs"><button>Chats</button><button>Add Chat</button><button>Settings</button></div>
+  <div id="chatInside"><h3>Chat with inno</h3><p>Online</p><p>Hi bro</p><input placeholder="Type message..."><button>Send</button></div>
 </div>
 
 <script src="firebase.js"></script>
 <script src="app.js"></script>
 </body>
-  </html>
+</html>
