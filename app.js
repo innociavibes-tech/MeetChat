@@ -2,13 +2,13 @@
 // ========== MeetChat - app.js ==========
 // 1. PUT YOUR FIREBASE CONFIG HERE - Get it from Firebase Console > Project Settings > Your apps > Web App
 const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY",
+  apiKey: "AIzaSyBleFoBV36jw2mGbmZgO7lrFtG4VswtPk8",
   authDomain: "meetchat-cab0c.firebaseapp.com",
   databaseURL: "https://meetchat-cab0c-default-rtdb.firebaseio.com",
   projectId: "meetchat-cab0c",
-  storageBucket: "meetchat-cab0c.appspot.com",
-  messagingSenderId: "PASTE_YOUR_SENDER_ID",
-  appId: "PASTE_YOUR_APP_ID"
+  storageBucket: "meetchat-cab0c.firebasestorage.app",
+  messagingSenderId: "722069770375",
+  appId: "1:722069770375:web:e6d195f8476cb7b069e822"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
