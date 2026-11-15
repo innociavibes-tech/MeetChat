@@ -1,196 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MeetChat</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
+<style>
+*{box-sizing:border-box;font-family:system-ui}body{margin:0;background:#f0f2f5}
+.top{background:#008069;color:#fff;padding:12px 16px 8px;position:sticky;top:0;z-index:10}
+.top h2{margin:0}.tabs{display:flex;gap:20px;margin-top:10px;font-weight:700}.tabs div{padding:6px 2px;cursor:pointer;opacity:.7}.tabs div.on{opacity:1;border-bottom:3px solid #fff}
+.page{display:none;padding-bottom:90px}.page.on{display:block}
+.card{background:#fff;margin:10px;border-radius:14px;padding:12px}
+.row{display:flex;align-items:center;gap:12px}.ava{width:48px;height:48px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:22px;position:relative;overflow:hidden;flex-shrink:0}.ava img{width:100%;height:100%;object-fit:cover}
+.dot{position:absolute;bottom:2px;right:2px;width:12px;height:12px;background:#25d366;border:2px solid #fff;border-radius:50%}
+.btn{background:#008069;color:#fff;border:none;padding:12px;border-radius:10px;font-weight:700;width:100%;cursor:pointer}.btn2{background:#eef3f1;border:none;padding:9px 12px;border-radius:20px;cursor:pointer;margin:2px}
+input,textarea,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;outline:none;margin-top:8px}
+.small{font-size:12px;color:#888}.tick{color:#53bdeb;font-weight:700}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px;border-top:1px solid #eee;z-index:20}.bottom div{text-align:center;font-size:12px;cursor:pointer}.bottom b{font-size:20px;display:block}
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:11px 18px;border-radius:20px;z-index:99;display:none;font-size:14px;max-width:90%;text-align:center}
+#sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:18px;z-index:99;display:none;max-height:85vh;overflow:auto}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:98;display:none}
+.chatbox{height:50vh;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:80%;padding:9px 11px;border-radius:14px;background:#fff;align-self:flex-start;box-shadow:0 1px 2px #0001}.msg.me{align-self:flex-end;background:#d9fdd3}.msg img,.msg video{width:100%;border-radius:10px}.msg .time{font-size:10px;color:#888;text-align:right}
+.sRow{display:flex;gap:12px;overflow:auto;padding:10px}.sItem{text-align:center;min-width:64px;cursor:pointer}.sItem img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:3px solid #25d366}
+.callScreen{position:fixed;inset:0;background:#0b141a;color:#fff;z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center}
+.switch{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0}.switch input{width:20px}
+.darkblue body,.darkblue .card{background:#0a1a2e!important;color:#fff!important}.darkblue input,.darkblue textarea,.darkblue select{background:#132a45!important;color:#fff!important;border-color:#1e3a5a!important}.darkblue .bottom{background:#0a1a2e!important;color:#fff!important}
+</style></head><body>
+<div class="top"><h2>MeetChat ✓</h2><div class="tabs"><div id="t1" class="on" onclick="showTab(1)">CHATS</div><div id="t2" onclick="showTab(2)">ADD CHATS</div><div id="t3" onclick="showTab(3)">SETTINGS</div></div></div>
 
-<div id="splash">
-  <div class="splash-logo">MeetChat</div>
-  <div class="splash-bar"><div id="splashFill"></div></div>
-  <div class="splash-from">From INNO</div>
+<div id="p1" class="page on">
+<div class="card"><b>My Status</b><div class="small">Photo from phone + caption - no link</div>
+<button class="btn2" onclick="document.getElementById('stFile').click()">📷 Photo From Phone</button><button class="btn2" onclick="document.getElementById('stFile2').click()">🎥 Video</button>
+<input id="stFile" type="file" accept="image/*" style="display:none" onchange="addStatus(this)"><input id="stFile2" type="file" accept="video/*" style="display:none" onchange="addStatus(this)">
+<img id="stPrev" style="display:none;width:100%;border-radius:12px;margin-top:8px"><input id="stCap" placeholder="Add caption for status..."><button class="btn" onclick="postStatus()">Post Status</button><div id="myStatusList"></div></div>
+<div class="card"><b>Friends Status</b><div id="statusList" class="sRow"></div><div class="small">Tap to view • Save 1 tap • Repost 1 tap • Deleted status visible 20 sec</div></div>
+<div class="card"><b>Chats</b><input id="searchChat" placeholder="🔍 Search chats..." oninput="renderChats()"><div id="chatList"></div></div>
 </div>
 
-<div id="offlineBar" class="hidden">You're offline - messages will be sent when you're back online</div>
-<div id="toast"></div>
+<div id="pChat" class="page"><div class="card"><div class="row"><button onclick="showTab(1)">←</button><div class="ava" id="chatAva">👤<span class="dot" id="chatDot"></span></div><div style="flex:1"><b id="chatName"></b><div class="small" id="chatTyping">Online</div></div><button class="btn2" onclick="startCall('voice')">📞</button><button class="btn2" onclick="startCall('video')">🎥</button></div></div>
+<div class="card"><div id="chatBox" class="chatbox"></div>
+<div style="display:flex;gap:6px"><input id="msgInput" placeholder="Type message..." oninput="typing()"><button class="btn2" onclick="document.getElementById('chatFile').click()">📷</button><button class="btn2" onclick="toggleEmoji()">😊</button><button class="btn2" onclick="recordVoice()">🎤</button><button class="btn" style="width:70px" onclick="sendMsg()">Send</button></div>
+<input id="chatFile" type="file" accept="image/*,video/*" style="display:none" onchange="sendFile(this)">
+<div id="emojiBox" style="display:none;padding:8px;font-size:26px"><span onclick="addEmoji('😂')">😂</span> <span onclick="addEmoji('❤️')">❤️</span> <span onclick="addEmoji('😍')">😍</span> <span onclick="addEmoji('🔥')">🔥</span> <span onclick="addEmoji('👍')">👍</span> <span onclick="addEmoji('🙏')">🙏</span> <span onclick="addEmoji('🎉')">🎉</span></div>
+<label class="small"><input type="checkbox" id="disappearChk" style="width:auto"> Disappearing messages &nbsp; <input type="checkbox" id="onceChk" style="width:auto"> View Once (3 views)</label>
+<div class="small">Tap message = Edit / Delete / View Once info</div></div></div>
 
-<div id="authScreen" class="screen hidden">
-  <div class="auth-card">
-    <h1>MeetChat</h1>
-    <p class="sub">End-to-End Encrypted</p>
-    <div class="auth-tabs">
-      <button id="tabLoginBtn" class="active" onclick="showAuth('login')">Login</button>
-      <button id="tabRegBtn" onclick="showAuth('register')">Create Account</button>
-    </div>
+<div id="p2" class="page"><div class="card"><b>Add Chats - All Users</b><div class="small">Only usernames shown. Phone numbers NEVER shown.</div><input id="searchUser" placeholder="Search username..." oninput="renderUsers()"><div id="userList"></div></div></div>
 
-    <div id="loginForm">
-      <label>Phone Number</label>
-      <div class="phone-row">
-        <select id="loginCountry">
-          <option value="+256">UG 🇺🇬 +256</option>
-          <option value="+254">KE 🇰🇪 +254</option>
-          <option value="+255">TZ 🇹🇿 +255</option>
-          <option value="+250">RW 🇷🇼 +250</option>
-          <option value="+1">US 🇺🇸 +1</option>
-          <option value="+44">UK 🇬🇧 +44</option>
-          <option value="+91">IN 🇮🇳 +91</option>
-          <option value="+234">NG 🇳🇬 +234</option>
-        </select>
-        <input id="loginPhone" type="tel" placeholder="700 000 000">
-      </div>
-      <label>Password</label>
-      <input id="loginPass" type="password" placeholder="Password">
-      <button class="primary" onclick="doLogin()">Log In</button>
-      <button class="link" onclick="showForgot()">Forgot Password?</button>
-    </div>
-
-    <div id="registerForm" class="hidden">
-      <label>Username</label>
-      <input id="regUser" type="text" placeholder="e.g inno_256" maxlength="20">
-      <label>Phone Number</label>
-      <div class="phone-row">
-        <select id="regCountry">
-          <option value="+256">UG 🇺🇬 +256</option>
-          <option value="+254">KE 🇰🇪 +254</option>
-          <option value="+255">TZ 🇹🇿 +255</option>
-          <option value="+250">RW 🇷🇼 +250</option>
-          <option value="+1">US 🇺🇸 +1</option>
-          <option value="+44">UK 🇬🇧 +44</option>
-          <option value="+91">IN 🇮🇳 +91</option>
-          <option value="+234">NG 🇳🇬 +234</option>
-        </select>
-        <input id="regPhone" type="tel" placeholder="700 000 000">
-      </div>
-      <label>Password</label>
-      <input id="regPass" type="password" placeholder="Create password">
-      <label>Security Question</label>
-      <select id="regQ">
-        <option>What is your mother's name?</option>
-        <option>What is your first pet's name?</option>
-        <option>What city were you born in?</option>
-      </select>
-      <input id="regA" type="text" placeholder="Your answer">
-      <button class="primary" onclick="doRegister()">Create Account</button>
-      <p class="tiny">No OTP. Your details are saved securely.</p>
-    </div>
-
-    <div id="forgotForm" class="hidden">
-      <label>Username</label>
-      <input id="forgotUser" type="text" placeholder="Your username">
-      <label>Security Answer</label>
-      <input id="forgotAns" type="text" placeholder="Answer to security question">
-      <label>New Password</label>
-      <input id="forgotNewPass" type="password" placeholder="New password">
-      <button class="primary" onclick="doForgot()">Recover Account</button>
-      <button class="link" onclick="showAuth('login')">Back to Login</button>
-    </div>
-  </div>
+<div id="p3" class="page">
+<div class="card"><div class="row"><div class="ava" style="width:64px;height:64px" onclick="document.getElementById('picFile').click()"><span id="myPicTxt">👤</span></div><div style="flex:1"><input id="myName" value="Innocent" oninput="saveMe()"><input id="myAbout" value="Hey there! I am using MeetChat" oninput="saveMe()"></div></div><input id="picFile" type="file" accept="image/*" style="display:none" onchange="changePic(this)"><div class="small">Tap photo to change. Screenshot allowed. Blue Tick: <b id="tickLabel">Not Verified</b> <button class="btn2" onclick="buyTick()">Get Blue Tick ✓ - Payment</button></div></div>
+<div class="card"><b>Theme</b><select id="themeSel" onchange="changeTheme()"><option value="light">White Mode</option><option value="darkblue">Dark Blue Mode</option></select>
+<div class="switch"><span>⚡ Lite Mode - Data Saver / Faster</span><input type="checkbox" id="liteChk" onchange="toast('Lite Mode ON - App works faster, less data')"></div>
+<div class="switch"><span>👻 Ghost Mode - App Only Airplane</span><input type="checkbox" id="ghostChk" onchange="ghostToggle()"></div>
+<div class="switch"><span>Hide Last Seen</span><input type="checkbox" id="hideSeen" onchange="toast('Last seen hidden')"></div>
+<div class="switch"><span>Hide Online</span><input type="checkbox" id="hideOnline" onchange="toast('Online hidden')"></div>
+<div class="switch"><span>🔒 App Lock / Pattern</span><input type="checkbox" id="lockChk" onchange="setLock()"></div>
+<button class="btn2" onclick="showSheet('Switch Account','<input id=acc2 placeholder=Second username><button class=btn onclick=addAccount()>Add 2nd Account</button><div class=small>2 accounts inside 1 app</div>')">🔄 Switch Account</button>
+<button class="btn2" onclick="showSheet('Who Blocked You','<div id=blockedList>Checking...</div>')">👀 See Who Blocked You</button>
+<button class="btn2" onclick="showSheet('Report to Admin','<textarea id=repTxt placeholder=Describe problem></textarea><button class=btn onclick=toast(&quot;Report sent to Admin&quot;)>Send Report</button>')">🚨 Report to Admin</button>
+<button class="btn2" onclick="showSheet('Send Feedback','<textarea placeholder=Your feedback></textarea><button class=btn onclick=toast(&quot;Thanks! Feedback sent&quot;)>Send</button>')">💬 Send Feedback</button>
+<button class="btn2" onclick="toast('Update checked - You are on latest version')">🔄 Updates</button>
+<button class="btn2" onclick="toast('Share link copied: meetchat.app')">📤 Share App</button></div>
+<div class="card"><b>🔔 Notifications</b><div class="small">Toasts for: new message, request, online, pic change, status deleted, status liked</div><div id="notifList"></div><button class="btn2" onclick="testNotifs()">Test Notifications</button></div>
+<div class="card"><button class="btn" style="background:#e53935" onclick="doLogout()">Log Out</button></div>
 </div>
 
-<div id="mainScreen" class="screen hidden">
-  <div class="topbar">
-    <div><h1>MeetChat</h1><div id="myStatusLine">Online</div></div>
-    <div class="top-actions">
-      <span id="ghostBadge" class="hidden">Ghost</span>
-      <img id="myAvatarTop" src="https://ui-avatars.com/api/?name=M&background=0A2540&color=fff" onclick="openTab('settings')">
-    </div>
-  </div>
-  <div id="statusRow" class="status-row">
-    <div class="status-item mine" onclick="addStatus()">
-      <img id="myStatusImg" src="https://ui-avatars.com/api/?name=Me&background=0A2540&color=fff"><span>My Status</span>
-    </div>
-    <div id="statusList"></div>
-  </div>
+<div class="bottom"><div onclick="showTab(1)"><b>💬</b>Chats</div><div onclick="showTab(2)"><b>➕</b>Add Chats</div><div onclick="showTab(3)"><b>⚙️</b>Settings</div></div>
+<div id="toast"></div><div id="overlay" onclick="closeSheet()"></div><div id="sheet"></div>
+<div id="callScreen" class="callScreen"><div class="ava" style="width:90px;height:90px;font-size:40px">👤</div><h2 id="callName">Calling...</h2><p id="callStatus">Ringing... 📞</p><p id="callTimer">00:00</p><div style="display:flex;gap:12px"><button class="btn2" style="background:#25d366;color:#fff;padding:14px 20px" onclick="answerCall()">Answer</button><button class="btn2" style="background:red;color:#fff;padding:14px 20px" onclick="endCall()">End</button></div><div class="small" style="color:#aaa">Call duration shows here • If offline, missed call goes to Chats</div></div>
 
-  <div id="tab-chats" class="tab-content">
-    <div class="search"><input id="searchChat" placeholder="Search chats..." oninput="renderChats()"></div>
-    <div id="chatList"></div>
-  </div>
-
-  <div id="tab-add" class="tab-content hidden">
-    <div class="search"><input id="searchUser" placeholder="Search users..." oninput="renderUsers()"></div>
-    <div id="userList"></div>
-  </div>
-
-  <div id="tab-settings" class="tab-content hidden">
-    <div class="profile-card">
-      <img id="setAvatar" src="https://ui-avatars.com/api/?name=M&background=0A2540&color=fff">
-      <input id="setPic" type="text" placeholder="Profile picture link">
-      <input id="setName" type="text" placeholder="Your name">
-      <input id="setAbout" type="text" placeholder="About - Hey there, I am using MeetChat">
-      <button class="primary" onclick="saveProfile()">Save Profile</button>
-    </div>
-    <div class="setting-group">
-      <h3>Theme</h3>
-      <button onclick="setTheme('light')">White Mode</button>
-      <button onclick="setTheme('dark')">Dark Blue Mode</button>
-      <button onclick="toggleLite()">Lite Mode: <span id="liteState">Off</span> - Data Saver</button>
-      <button onclick="toggleGhost()">Ghost Mode: <span id="ghostState">Off</span> - App Airplane Mode</button>
-    </div>
-    <div class="setting-group">
-      <h3>Privacy</h3>
-      <button onclick="togglePrivacy('lastseen')">Hide Last Seen: <span id="hideLastSeen">Off</span></button>
-      <button onclick="togglePrivacy('online')">Hide Online: <span id="hideOnline">Off</span></button>
-      <button onclick="showBlocked()">See Who Blocked You</button>
-    </div>
-    <div class="setting-group">
-      <h3>Security & Account</h3>
-      <button onclick="toggleAppLock()">App Lock (Pattern): <span id="lockState">Off</span></button>
-      <button onclick="switchAccount()">Switch Account - 2 Accounts</button>
-      <button onclick="buyBlueTick()">Get Blue Tick - Payment</button>
-      <button onclick="toast('Feedback sent to INNO. Thank you!')">Send Feedback</button>
-      <button onclick="toast('Report sent to Admin')">Report to Admin</button>
-      <button onclick="toast('Notifications: ON')">Notifications</button>
-      <button onclick="toast('You are on latest version')">Updates</button>
-      <button onclick="shareApp()">Share App</button>
-      <button class="danger" onclick="logout()">Log Out</button>
-    </div>
-  </div>
-
-  <div class="bottom-tabs">
-    <button id="btn-chats" class="active" onclick="openTab('chats')"><span class="tab-icon">◉</span><label>Chats</label></button>
-    <button id="btn-add" onclick="openTab('add')"><span class="tab-icon">＋</span><label>Add Chat</label></button>
-    <button id="btn-settings" onclick="openTab('settings')"><span class="tab-icon">⚙</span><label>Settings</label></button>
-  </div>
-</div>
-
-<div id="chatWindow" class="screen hidden">
-  <div class="chat-header">
-    <button onclick="closeChat()">‹</button>
-    <img id="chatAvatar" src="">
-    <div class="flex1"><b id="chatName"></b><small id="chatPresence">Offline</small><small id="typingInd"></small></div>
-    <button onclick="startCall('voice')">📞</button>
-    <button onclick="startCall('video')">📹</button>
-    <button onclick="toggleBlock()">Block</button>
-  </div>
-  <div class="chat-tools">
-    <label>Disappearing: <select id="disappearSelect"><option value="0">Off</option><option value="10">10s</option><option value="60">1 min</option></select></label>
-    <button onclick="toast('Screenshot allowed for profile pictures')">Profile Pic</button>
-  </div>
-  <div id="messages"></div>
-  <div class="composer">
-    <button onclick="document.getElementById('fileInput').click()">📎</button>
-    <input id="fileInput" type="file" accept="image/*,video/*" class="hidden" onchange="sendFile(this)">
-    <button onclick="insertEmoji('😂')">😊</button>
-    <input id="msgInput" placeholder="Message..." oninput="sendTyping()">
-    <button onclick="toggleVoice()">🎤</button>
-    <button class="sendBtn" onclick="sendMessage()">Send</button>
-  </div>
-</div>
-
-<div id="callScreen" class="screen hidden call-screen">
-  <img id="callAvatar" src="">
-  <h2 id="callName"></h2>
-  <p id="callStatus">Ringing...</p>
-  <p id="callTimer">00:00</p>
-  <div class="call-btns"><button class="accept" onclick="acceptCall()">Accept</button><button class="decline" onclick="endCall()">End</button></div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<script src="app.js"></script>
-</body>
-  </html>
+<script>
+let me=JSON.parse(localStorage.getItem('mc_me')||'{"name":"Innocent","about":"Hey there! I am using MeetChat","pic":""}');
+let users=JSON.parse(localStorage.getItem('mc_users')||'[{"name":"Sarah","online":true,"about":"Hi","pic":""},{"name":"David","online":false,"about":"Busy","pic":""},{"name":"Grace","online":true,"about":"Available","pic":""},{"name":"Moses","online":true,"about":"MeetChat lover","pic":""}]');
+let chats=JSON.parse(localStorage.getItem('mc_chats')||'{}');let statuses=JSON.parse(localStorage.getItem('mc_statuses')||'[]');let friends=JSON.parse(localStorage.getItem('mc_friends')||'[]');
+let currentChat=null,pendingStatus=null,callInt=null,callSec=0,typingTimer=null;
+function save(){localStorage.setItem('mc_users',JSON.stringify(users));localStorage.setItem('mc_chats',JSON.stringify(chats));localStorage.setItem('mc_statuses',JSON.stringify(statuses));localStorage.setItem('mc_friends',JSON.stringify(friends));localStorage.setItem('mc_me',JSON.stringify(me));}
+function toast(m){let t=document.getElementById('toast');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2800);}
+function showSheet(title,html){document.getElementById('sheet').innerHTML='<h3>'+title+'</h3>'+html+'<br><button class=btn2 onclick=closeSheet()>Close</button>';document.getElementById('sheet').style.display='block';document.getElementById('overlay').style.display='block';}
+function closeSheet(){document.getElementById('sheet').style.display='none';document.getElementById('overlay').style.display='none';}
+function showTab(n){[1,2,3].forEach(i=>{document.getElementById('p'+i).classList.toggle('on',i==n);document.getElementById('t'+i).classList.toggle('on',i==n);});document.getElementById('pChat').classList.remove('on');if(n==1)renderChats();if(n==2)renderUsers();if(n==3)renderSettings();}
+function renderChats(){let q=(document.getElementById('searchChat').value||'').toLowerCase();let h='';users.filter(u=>u.name.toLowerCase().includes(q)).forEach(u=>{let msgs=chats[u.name]||[];let last=msgs[msgs.length-1];h+='<div class=row style="padding:10px 0;border-bottom:1px solid #f5f5f5;cursor:pointer" onclick="openChat(\''+u.name+'\')"><div class=ava>'+(u.pic?'<img src="'+u.pic+'">':'👤')+(u.online?'<span class=dot></span>':'')+'</div><div style=flex:1><b>'+u.name+' '+(friends.includes(u.name)?'✓':'')+'</b><div class=small>'+(last?(last.deleted?'🗑️ Deleted message':(last.text||'📷 Photo').slice(0,35)):u.about)+'</div></div><div class=small>'+(u.online?'Online':'')+'<br>'+(last?'<span class=tick>✓✓ Seen</span>':'')+'</div></div>';});document.getElementById('chatList').innerHTML=h||'No chats yet - Go to Add Chats';}
+function renderUsers(){let q=(document.getElementById('searchUser').value||'').toLowerCase();let h='';users.filter(u=>u.name.toLowerCase().includes(q)).forEach(u=>{h+='<div class=row style="padding:10px 0;border-bottom:1px solid #eee"><div class=ava>'+(u.pic?'<img src="'+u.pic+'">':'👤')+(u.online?'<span class=dot></span>':'')+'</div><div style=flex:1><b>@'+u.name+'</b><div class=small>'+u.about+' • '+(u.online?'Online':'Offline')+'</div></div>'+(friends.includes(u.name)?'<button class=btn2 onclick=openChat(\''+u.name+'\')>Message</button>':'<button class=btn2 onclick=sendRequest(\''+u.name+'\')>Add Friend</button>')+'</div>';});document.getElementById('userList').innerHTML=h;}
+function sendRequest(n){toast('Request sent to '+n);toast('🔔 Notification to '+n+': New friend request');setTimeout(()=>{if(!friends.includes(n)){friends.push(n);save();toast(n+' accepted you! Start messaging instantly ✅');renderUsers();renderChats();}},1500);}
+function openChat(n){currentChat=n;document.getElementById('chatName').innerText=n;let u=users.find(x=>x.name==n);document.getElementById('chatTyping').innerText=(u&&u.online)?'Online - tap to call':'Offline - Missed call will show here';document.getElementById('chatDot').style.display=(u&&u.online)?'block':'none';[1,2,3].forEach(i=>document.getElementById('p'+i).classList.remove('on'));document.getElementById('pChat').classList.add('on');renderMessages();}
+function renderMessages(){let box=document.getElementById('chatBox');let msgs=chats[currentChat]||[];box.innerHTML=msgs.map((m,i)=>{if(m.deleted){let left=15-Math.floor((Date.now()-m.deletedAt)/1000);if(left<=0)return '<div class="msg '+(m.me?'me':'')+'">Message deleted - cannot see anymore</div>';return '<div class="msg '+(m.me?'me':'')+'"><i>🗑️ This message was deleted - you can still see it for '+left+'s</i><div class=time>'+m.time+'</div></div>';}if(m.once&&m.views>=3)return '<div class="msg '+(m.me?'me':'')+'">👁️ View Once photo expired after 3 views</div>';let inner=m.type=='image'?'<img src="'+m.text+'" onclick="viewOnce('+i+')">' : m.type=='video'?'<video src="'+m.text+'" controls></video>' : m.type=='voice'?'🎤 Voice Note <audio src="'+m.text+'" controls style=width:100%></audio>':(m.text||'')+(m.edited?' <span class=small>(edited)</span>':'');return '<div class="msg '+(m.me?'me':'')+'" onclick="msgOptions('+i+')">'+inner+'<div class=time>'+m.time+' <span class=tick>✓✓ Seen</span></div></div>';}).join('');box.scrollTop=box.scrollHeight;}
+function viewOnce(i){let m=chats[currentChat][i];if(m.once){m.views=(m.views||0)+1;save();toast('View Once: view '+(m.views)+'/3');renderMessages();}}
+function sendMsg(){let v=document.getElementById('msgInput').value.trim();if(!v)return;pushMsg({text:v,type:'text',me:true,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),once:document.getElementById('onceChk').checked,views:0,disappear:document.getElementById('disappearChk').checked});document.getElementById('msgInput').value='';}
+function pushMsg(m){if(!chats[currentChat])chats[currentChat]=[];chats[currentChat].push(m);save();renderMessages();if(m.disappear)setTimeout(()=>{let idx=chats[currentChat].indexOf(m);if(idx>-1){chats[currentChat].splice(idx,1);save();renderMessages();}},5000);setTimeout(()=>{let reply={text:'Hi! Got your message 😊',type:'text',me:false,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})};if(!chats[currentChat])return;chats[currentChat].push(reply);save();renderMessages();toast('🔔 New message from '+currentChat);},1200);}
+function sendFile(el){let f=el.files[0];if(!f)return;let r=new FileReader();r.onload=e=>pushMsg({text:e.target.result,type:f.type.indexOf('video')>-1?'video':'image',me:true,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),once:document.getElementById('onceChk').checked,views:0});r.readAsDataURL(f);}
+function msgOptions(i){showSheet('Message Options','<button class=btn onclick=editMsg('+i+')>✏️ Edit Message</button><br><br><button class=btn onclick=deleteMsg('+i+')>🗑️ Delete Message</button><p class=small>Delete: Friend can still see it for 15 seconds, then gone. Edited shows (edited).</p>');}
+function editMsg(i){let cur=chats[currentChat][i].text||'';showSheet('Edit Message','<input id=editInp value="'+cur.replace(/"/g,'')+'"><button class=btn onclick=doEdit('+i+')>Save Edit</button>');}
+function doEdit(i){chats[currentChat][i].text=document.getElementById('editInp').value;chats[currentChat][i].edited=true;save();closeSheet();renderMessages();toast('Message edited - friend can see edited ✅');}
+function deleteMsg(i){let m=chats[currentChat][i];m.deleted=true;m.deletedAt=Date.now();save();closeSheet();renderMessages();toast('Message deleted - friend can see for 15 sec');setTimeout(()=>{save();renderMessages();},16000);}
+function typing(){let t=document.getElementById('chatTyping');t.innerText='Typing... ✍️';clearTimeout(typingTimer);typingTimer=setTimeout(()=>t.innerText='Online',1500);}
+function toggleEmoji(){let b=document.getElementById('emojiBox');b.style.display=b.style.display=='none'?'block':'none';}
+function addEmoji(e){document.getElementById('msgInput').value+=e;}
+function recordVoice(){toast('🎤 Recording voice note...');setTimeout(()=>{pushMsg({text:'',type:'voice',me:true,time:'Now'});toast('Voice note sent 🎤');},1200);}
+function addStatus(el){let f=el.files[0];if(!f)return;let r=new FileReader();r.onload=e=>{pendingStatus={data:e.target.result,isVideo:f.type.indexOf('video')>-1};let p=document.getElementById('stPrev');p.src=e.target.result;p.style.display='block';toast('Photo ready - Add caption & Post');};r.readAsDataURL(f);}
+function postStatus(){let cap=document.getElementById('stCap').value;if(!pendingStatus&&!cap)return toast('Pick photo or type caption');statuses.push({user:me.name,data:pendingStatus?pendingStatus.data:'',cap:cap,time:Date.now(),views:0,deleted:false,deletedAt:0});pendingStatus=null;document.getElementById('stCap').value='';document.getElementById('stPrev').style.display='none';save();renderStatus();toast('Status posted ✅');}
+function renderStatus(){let h='';statuses.forEach((s,i)=>{h+='<div class=sItem onclick=viewStatus('+i+')><img src="'+(s.data||'https://via.placeholder.com/100')+'"><div class=small>'+s.user+'</div></div>';});document.getElementById('statusList').innerHTML=h||'No status yet';document.getElementById('myStatusList').innerHTML=statuses.filter(s=>s.user==me.name).map((s,idx)=>'<div class=small>Your status: '+(s.cap||'Photo')+' • <button onclick=deleteMyStatus('+statuses.indexOf(s)+')>Delete</button></div>').join('');}
+function viewStatus(i){let s=statuses[i];if(!s)return;if(s.deleted){let left=20-Math.floor((Date.now()-s.deletedAt)/1000);if(left<=0){toast('Status deleted - cannot see anymore');return;}showSheet('Deleted Status - '+s.user,'<p><i>🗑️ This status was deleted - you can still see it for '+left+'s</i></p>'+(s.data?'<img src="'+s.data+'" style=width:100%;border-radius:12px>':'')+'<p>'+(s.cap||'')+'</p>');return;}s.views++;save();showSheet('Status by '+s.user,'<p>'+(s.cap||'')+'</p>'
