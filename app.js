@@ -233,3 +233,39 @@ window.addEventListener('beforeunload', ()=>{ if(me && !ghost) db.ref('users/'+m
 
 // Splash + Start
 let w=0; const si=setInterval(()=>{ w+=20; document.getElementById('splashFill').style.width=w+'%'; if(w>=100){ clearInterval(si); document.getElementById('splash').style.display='none'; if(me){ enterApp(); } else { document.getElementById('authScreen').classList.remove('hidden'); } } },200);
+let statusImageData = "";
+function previewStatus(input){
+  let file = input.files[0];
+  if(!file) return;
+  let reader = new FileReader();
+  reader.onload = e=>{
+    statusImageData = e.target.result;
+    let img = document.getElementById('statusPreview');
+    img.src = statusImageData;
+    img.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+function showToast(msg){
+  let t = document.getElementById('toast');
+  t.innerText = msg; t.style.display = 'block';
+  setTimeout(()=> t.style.display='none', 2500);
+}
+async function postStatusPro(){
+  let cap = document.getElementById('statusCaption').value;
+  if(!statusImageData && !cap) return showToast("Pick a photo or type caption");
+  // save to Firebase - same place as before
+  await db.ref('statuses/' + currentUser.uid).set({
+    text: cap, image: statusImageData, user: currentUser.displayName || currentUser.email, time: Date.now()
+  });
+  showToast("Status posted ✅");
+  document.getElementById('statusCaption').value = "";
+  document.getElementById('statusPreview').style.display = 'none';
+  statusImageData = "";
+}
+function doLogout(){
+  firebase.auth().signOut().then(()=>{
+    showToast("You have logged out");
+    setTimeout(()=> location.reload(), 1000);
+  });
+                                                                                              }
